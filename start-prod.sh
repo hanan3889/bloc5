@@ -3,6 +3,6 @@
 # Script de démarrage pour l'environnement de production
 echo "🚀 Démarrage de l'environnement PROD..."
 
-docker compose --env-file .env.prod -p videgrenier_prod up --build -d
+docker compose --env-file .env.prod --profile prod up -d --build
 
-echo "🎉 Environnement PROD demarré !"
+echo "🎉 Environnement PRO demarré sur http://localhost:9089"
