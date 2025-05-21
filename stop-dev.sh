@@ -1,8 +1,5 @@
 #!/bin/bash
 
-ENV_FILE=".env.dev"
-PROJECT_NAME="dev"
-
-echo "Stopping production environment..."
-
-docker compose --env-file "$ENV_FILE" -p "$PROJECT_NAME" down
+echo "Stopping dev containers..."
+docker compose --env-file .env.dev --profile dev down
+echo "Dev containers stopped."
