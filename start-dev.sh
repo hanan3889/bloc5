@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Script de démarrage pour l'environnement de production
+# Script de démarrage pour l'environnement de dev
+
 echo "🚀 Démarrage de l'environnement DEV..."
 
-docker compose --env-file .env.dev -p videgrenier_dev up -d --build
+docker compose --env-file .env.dev --profile dev up -d --build
 
-echo "🎉 Environnement DEV demarré !"
+echo "🎉 Environnement DEV demarré sur http://localhost:9000"
