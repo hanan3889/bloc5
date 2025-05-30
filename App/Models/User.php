@@ -45,6 +45,16 @@ class User extends Model {
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
+    public static function findById($id)
+    {
+        $sql = 'SELECT * FROM users WHERE id = :id';
+        $db = static::getDB(); 
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
 
     /**
      * ?
