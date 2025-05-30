@@ -61,6 +61,7 @@ RUN if [ "$APP_ENV" = "prod" ]; then \
         composer install; \
     fi
 
+    
 # --- Permissions ---
 RUN chown -R www-data:www-data /var/www/html
 
