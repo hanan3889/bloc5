@@ -153,6 +153,33 @@ class Articles extends Model {
     }
 
 
+    /**
+     * Récupère un article avec son propriétaire
+     * @param int $id Identifiant de l'article
+     * @return array Article et propriétaire
+     * @throws Exception
+     */
+    public static function getWithOwnerById($id) {
+        $db = static::getDB();
+        $stmt = $db->prepare('
+            SELECT
+                articles.id AS article_id,
+                articles.name AS article_name,
+                articles.description,
+                articles.published_date,
+                articles.user_id,
+                articles.views,
+                articles.picture,
+                users.id AS user_id,
+                users.username AS user_username,
+                users.email AS user_email
+            FROM articles
+            INNER JOIN users ON articles.user_id = users.id
+            WHERE articles.id = ?
+            LIMIT 1
+        ');
 
-
+        $stmt->execute([$id]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace Core;
 
+use App\Config;
+
 /**
  * Error and exception handler
  *
@@ -9,7 +11,7 @@ namespace Core;
  */
 class Error
 {
-
+    
     /**
      * Error handler. Convert all errors to Exceptions by throwing an ErrorException.
      *
