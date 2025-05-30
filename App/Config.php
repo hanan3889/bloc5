@@ -19,6 +19,8 @@ namespace App;
 
     public static $DB_PASSWORD = null; // Récupérer la valeur de DB_PASSWORD depuis les variables d'environnement
 
+    const SHOW_ERRORS = true;
+
     public static function init()
     {
         self::$DB_HOST = getenv('DB_HOST');self::$DB_NAME = getenv('DB_DATABASE');

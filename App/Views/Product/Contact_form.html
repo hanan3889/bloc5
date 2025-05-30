@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Contacter le vendeur (ID: {{ owner.id }}) "{{ owner.username }}" pour l'article : "{{ article.name }}"
+{% endblock %}
+
+{% block body %}
+
+    <div class="content-wrapper mt-40">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8 col-sm-10 col-12">
+                    <h4 class="text-center mb-4">Article : "{{ article.name }}"</h4>
+                    <h4 class="text-center text-muted">Vendu par {{ owner.username }}</h4>
+                <form action="/product/contact/{{ article.id }}" method="POST"  enctype="application/x-www-form-urlencoded"  class="contact-form p-4 border rounded shadow-sm bg-light">
+
+                    <div class="mb-3"> 
+                        <label for="name" class="form-label">Votre Nom :</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ senderName }}" required aria-describedby="nameHelp">
+                        <div id="nameHelp" class="form-text">Merci d'indiquer votre nom complet.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Votre Email :</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ senderEmail }}" required aria-describedby="emailHelp">
+                        <div id="emailHelp" class="form-text">Nous ne partagerons jamais votre email.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Votre Message :</label>
+                        <textarea class="form-control" id="message" name="message" rows="7" required>{{ message }}</textarea>
+                    </div>
+                    <div class="d-grid gap-2"> 
+                        <button type="submit" class="btn btn-primary btn-lg mb-5">Envoyer le message</button>
+                        <a href="/product/{{ article.id }}" class="btn btn-secondary btn-lg">Retour à l'article</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}
