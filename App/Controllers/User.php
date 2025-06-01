@@ -1,9 +1,10 @@
 <?php
 
+
 namespace App\Controllers;
 
 use App\Config;
-use App\Model\UserRegister;
+use App\Models\UserRegister;
 use App\Models\Articles;
 use App\Utility\Hash;
 use App\Utility\Session;
@@ -11,12 +12,14 @@ use \Core\View;
 use Exception;
 use http\Env\Request;
 use http\Exception\InvalidArgumentException;
+use App\Utility\Auth;
 
 /**
  * User controller
  */
 class User extends \Core\Controller
 {
+    
 
     /**
      * Affiche la page de login
@@ -40,23 +43,75 @@ class User extends \Core\Controller
     /**
      * Page de création de compte
      */
-    public function registerAction()
+    // public function registerAction()
+    // {
+    //     if(isset($_POST['submit'])){
+    //         $f = $_POST;
+
+    //         if($f['password'] !== $f['password-check']){
+    //             // TODO: Gestion d'erreur côté utilisateur
+    //         }
+
+    //         // validation
+
+    //         $this->register($f);
+    //         // TODO: Rappeler la fonction de login pour connecter l'utilisateur
+    //     }
+
+    //     View::renderTemplate('User/register.html');
+    // }
+
+
+
+     public function registerAction()
     {
-        if(isset($_POST['submit'])){
+        
+        if (isset($_POST['submit'])) {
             $f = $_POST;
 
-            if($f['password'] !== $f['password-check']){
-                // TODO: Gestion d'erreur côté utilisateur
+            // Vérification des mots de passe
+            if ($f['password'] !== $f['password-check']) {
+                // TODO: Gérer l'erreur utilisateur via une session flash ou un message dans la vue
+                echo "❌ Mots de passe différents<br>";
+                return;
             }
 
-            // validation
+        
+            $f['salt'] = ''; 
+            $f['password'] = password_hash($f['password'], PASSWORD_DEFAULT);
 
-            $this->register($f);
-            // TODO: Rappeler la fonction de login pour connecter l'utilisateur
+            try {
+                // Crée l'utilisateur via le modèle UserRegister
+                UserRegister::createUser($f);
+
+            } catch (Exception $e) {
+                // Gère les erreurs lors de l'enregistrement de l'utilisateur (ex: email déjà utilisé, erreur DB)
+                // TODO: Logger l'erreur et afficher un message générique à l'utilisateur
+                echo "❌ Erreur lors de l'enregistrement de l'utilisateur : " . $e->getMessage() . "<br>";
+                return;
+            }
+
+            // Recherche l'utilisateur fraîchement créé pour récupérer toutes ses informations
+            $user = UserRegister::findByEmail($f['email']);
+            if (!$user) {
+                echo "❌ Utilisateur introuvable après l'enregistrement<br>";
+                exit; 
+            }
+
+            // Connecte l'utilisateur en session
+            Auth::login($user);
+
+            // Redirige l'utilisateur vers la page de compte après l'enregistrement et la connexion
+            header('Location: /account');
+            exit;
+
         }
 
         View::renderTemplate('User/register.html');
     }
+
+
+
 
     /**
      * Affiche la page du compte
