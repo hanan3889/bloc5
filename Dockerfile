@@ -1,32 +1,21 @@
-# Dockerfile
 FROM debian:11
 
-# Define build arguments for environment and Apache config file
-# These defaults will be used if not explicitly passed during docker build
-ARG APP_ENV=dev
-ARG APACHE_CONF=dev.conf
+ARG APP_ENV
+ARG APACHE_CONF=000-default.conf
 
+# Affiche l'environnement actuel
+RUN echo "🔹 Environnement: $APP_ENV"
 
-# Set environment variable for use in later RUN commands and at runtime
-ENV APP_ENV=${APP_ENV}
-
-# --- System Dependencies & PHP Repository ---
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+# Installation des dépendances système
+RUN apt-get update && apt-get install -y \
     lsb-release apt-transport-https ca-certificates wget gnupg2 curl unzip git && \
-    rm -rf /var/lib/apt/lists/*
-
-# Add Sury PHP repository (modern way)
-RUN wget -qO - https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /usr/share/keyrings/deb.sury.org-php.gpg && \
-    echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
-
-# --- PHP, Apache, and Extensions ---
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
+    wget -qO - https://packages.sury.org/php/apt.gpg | apt-key add - && \
+    echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list && \
+    apt-get update && apt-get install -y \
     apache2 \
     php8.4 \
-    libapache2-mod-php8.4 \
     composer \
+    libapache2-mod-php8.4 \
     php8.4-mysql \
     php8.4-xml \
     php8.4-mbstring \
@@ -34,38 +23,36 @@ RUN apt-get update && \
     php8.4-zip \
     php8.4-intl \
     php8.4-gd \
-    php8.4-dom && \
-    # Conditional installation for dev environment only
-    if [ "$APP_ENV" = "dev" ]; then \
-        apt-get install -y --no-install-recommends php-pear; \
-    fi && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    php8.4-dom \
+    php-pear
 
-# --- Apache Configuration ---
 RUN a2enmod rewrite
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Copy Apache virtual host configuration based on APACHE_CONF build arg
-COPY apache/${APACHE_CONF} /etc/apache2/sites-available/000-default.conf
-RUN a2ensite 000-default.conf
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# --- Application Copy & Dependencies ---
+COPY apache/${APACHE_CONF} /etc/apache2/sites-available/000-default.conf
+
 COPY . /var/www/html
 WORKDIR /var/www/html
 
-# Install PHP dependencies based on APP_ENV
+# Installer les dépendances Composer
 RUN if [ "$APP_ENV" = "prod" ]; then \
-        composer install --no-dev --optimize-autoloader; \
-    else \
-        composer install; \
-    fi
+    composer install --no-interaction --optimize-autoloader --no-dev; \
+else \
+    composer install --no-interaction --optimize-autoloader; \
+fi
 
-    
-# --- Permissions ---
+# Installer PHPUnit uniquement pour l'environnement de développement
+RUN if [ "$APP_ENV" = "dev" ]; then \
+    echo "Installing global phpunit..."; \
+    curl -Ls https://phar.phpunit.de/phpunit-9.5.phar -o /usr/local/bin/phpunit && \
+    chmod +x /usr/local/bin/phpunit && \
+    phpunit --version; \
+fi
+
 RUN chown -R www-data:www-data /var/www/html
 
-# --- Exposure & Command ---
 EXPOSE 80
 
 CMD ["apachectl", "-D", "FOREGROUND"]

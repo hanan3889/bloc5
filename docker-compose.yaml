@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   web:
     build:
@@ -7,6 +5,7 @@ services:
       dockerfile: Dockerfile
       args:
         APACHE_CONF: ${APACHE_CONF}
+        APP_ENV: ${APP_ENV}
     container_name: videgrenier-web-${APP_ENV}
     ports:
       - "${APP_PORT}:80"
