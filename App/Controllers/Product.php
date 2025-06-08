@@ -179,7 +179,6 @@ class Product extends \Core\Controller
             $senderEmail = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL);
             $messageContent = htmlspecialchars(trim($_POST['message'] ?? ''), ENT_QUOTES, 'UTF-8');
 
-            $subject = "Question concernant votre article : " . htmlspecialchars($article['article_name'], ENT_QUOTES, 'UTF-8');
 
             if (empty($senderName)) {
                 $errors[] = "Votre nom est requis.";
@@ -196,21 +195,13 @@ class Product extends \Core\Controller
             }
 
             if (empty($errors)) {
-                $to = $owner['email'];
-                $headers = "From: $senderEmail\r\n";
-                $headers .= "Reply-To: $senderEmail\r\n";
-                $headers .= "MIME-Version: 1.0\r\n";
-                $headers .= "Content-Type: text/plain; charset=utf-8\r\n";
-
-                $body = "Message de $senderName ($senderEmail):\n\n$messageContent";
-
-                // Envoi de l'e-mail
-                if (mail($to, $subject, $body, $headers)) {
-                    header("Location: /");
+                $successMessage = "Votre message a été envoyé avec succès !";
+                $senderName = '';
+                $senderEmail = '';
+                $messageContent = '';
+                header("Location: /product/success");
                     exit;
-                } else {
-                    $errors[] = "Erreur lors de l'envoi. Veuillez réessayer.";
-                }
+
             }
         }
 
@@ -227,6 +218,17 @@ class Product extends \Core\Controller
             'senderEmail' => $senderEmail,
             'message' => $messageContent
         ]);
+    }
+
+    
+    /**
+     * Affiche la page de message de confirmation de formulaire de contact.
+     *
+     * @return void
+     */
+    public function successAction()
+    {
+        View::renderTemplate('Product/Success.html');
     }
 
 }
