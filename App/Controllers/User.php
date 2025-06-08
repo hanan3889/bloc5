@@ -43,27 +43,7 @@ class User extends \Core\Controller
     /**
      * Page de création de compte
      */
-    // public function registerAction()
-    // {
-    //     if(isset($_POST['submit'])){
-    //         $f = $_POST;
-
-    //         if($f['password'] !== $f['password-check']){
-    //             // TODO: Gestion d'erreur côté utilisateur
-    //         }
-
-    //         // validation
-
-    //         $this->register($f);
-    //         // TODO: Rappeler la fonction de login pour connecter l'utilisateur
-    //     }
-
-    //     View::renderTemplate('User/register.html');
-    // }
-
-
-
-     public function registerAction()
+    public function registerAction()
     {
         
         if (isset($_POST['submit'])) {
