@@ -16,6 +16,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+
 /**
  * Error and Exception handling
  */
@@ -39,6 +40,8 @@ $router->add('product', ['controller' => 'Product', 'action' => 'index', 'privat
 $router->add('product/{id:\d+}', ['controller' => 'Product', 'action' => 'show']);
 $router->add('{controller}/{action}');
 $router->add('product/contact/{id:\d+}', ['controller' => 'Product','action' => 'contact','private' => true]);
+$router->add('product/{id}', ['controller' => 'Product', 'action' => 'show']); // Route pour afficher l'article
+$router->add('product/contact/{id}', ['controller' => 'Product', 'action' => 'contact']); // Route pour le contact
 
 
 
