@@ -6,4 +6,4 @@ require_once __DIR__ . '/Mocks.php';
 
 // 2. Inclure l'autoloader de Composer APRÈS
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/Controllers/TestableProductController.php';
+require_once __DIR__ . '/Unit/Controllers/TestableProductController.php';
