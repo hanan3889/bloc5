@@ -24,32 +24,40 @@ class Product extends \Core\Controller
     public function indexAction()
     {
         if (isset($_POST['submit'])) {
-            try {
-                $f = $_POST;
-                $files = $_FILES;
 
-                // Validation
-                if ($this->validate($f, $files)) {
+            $errors = [];
+
+            // Vérification de l'image
+            if (!isset($_FILES['picture']) || $_FILES['picture']['error'] === UPLOAD_ERR_NO_FILE) {
+                $errors[] = "Une photo est obligatoire pour publier une annonce.";
+            }
+
+            if (empty($errors)) {
+                try {
+                    $f = $_POST;
                     $f['user_id'] = $_SESSION['user']['id'];
                     $id = Articles::save($f);
 
-                    $pictureName = Upload::uploadFile($files['picture'], $id);
+                    $pictureName = Upload::uploadFile($_FILES['picture'], $id);
                     Articles::attachPicture($id, $pictureName);
 
                     header('Location: /product/' . $id);
-                    exit(); 
-                }
-            } catch (\Exception $e) {
-                error_log($e->getMessage()); // Log the exception
-                $this->errors[] = "Une erreur inattendue est survenue. Veuillez réessayer.";
-            }
-        }
+                    exit;
 
-        View::renderTemplate('Product/Add.html', [
-            'errors' => $this->errors,
-            'old_input' => $_POST ?? [] 
-        ]);
+                } catch (\Exception $e) {
+                    $errors[] = "Une erreur s'est produite : " . $e->getMessage();
+                }
+            }
+
+            // Si erreur, on renvoie la vue avec message
+            View::renderTemplate('Product/Add.html', [
+                'errors' => $errors
+            ]);
+        } else {
+            View::renderTemplate('Product/Add.html');
+        }
     }
+
 
     /**
      * Affiche la page d'un produit
@@ -89,45 +97,6 @@ class Product extends \Core\Controller
         ]);
     }
 
-    /**
-     * Validate the form data.
-     *
-     * @param array $data The POST data.
-     * @param array $files The FILES data.
-     * @return bool True if validation passes, false otherwise.
-     */
-    private function validate($data, $files)
-    {
-        $isValid = true;
-
-        // On verifie que le nom, la description et la ville ne sont pas vides
-        if (empty($data['name'])) {
-            $this->errors[] = "Le titre est requis.";
-            $isValid = false;
-        }
-
-        if (empty($data['description'])) {
-            $this->errors[] = "La description est requise.";
-            $isValid = false;
-        }
-
-        if (empty($data['cityAutoComplete'])) {
-            $this->errors[] = "La ville est requise.";
-            $isValid = false;
-        }
-
-        // On verifie que l image est bien chargée
-        if (!isset($files['picture']) || $files['picture']['error'] === UPLOAD_ERR_NO_FILE) {
-            $this->errors[] = "Une image est requise.";
-            $isValid = false;
-        } elseif ($files['picture']['error'] !== UPLOAD_ERR_OK) {
-            // Message d erreur
-            $this->errors[] = "Erreur lors du téléchargement de l'image. Code: " . $files['picture']['error'];
-            $isValid = false;
-        }
-
-        return $isValid;
-    }
 
     /**
     * Gère la soumission du formulaire de contact pour le propriétaire d'un article spécifique.
