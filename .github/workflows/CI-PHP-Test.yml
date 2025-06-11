@@ -16,12 +16,12 @@ jobs:
 
     steps:
       - name: Récupérer le code source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # <-- Mis à jour à v4
 
       # Cette étape installe Docker et Docker Compose. Bien que nous n'utilisions plus docker-compose pour le build/run ici,
       # elle assure que Docker est entièrement prêt sur l'exécuteur.
       - name: Configurer Docker
-        uses: docker/setup-docker@v3 # Utilisez la version stable recommandée
+        uses: docker/setup-docker@v3 # <-- CORRECTION DE L'INDENTATION ICI : 'uses' doit être aligné avec 'name'
 
       - name: Configurer Docker Buildx # Gardez cette étape pour les optimisations de build
         uses: docker/setup-buildx-action@v3
@@ -127,5 +127,5 @@ jobs:
 
       # --- Nettoyage ---
       - name: Arrêter et supprimer le conteneur de base de données de test
-        if: always() # Toujours exécuter le nettoyage
+        if: always() 
         run: docker rm -f test-db
