@@ -14,6 +14,7 @@ class PictureTest extends TestCase
         $_POST = [];
         $_FILES = [];
         $_SESSION = [];
+        
     }
 
     public function testMissingPhotoTriggersError(): void

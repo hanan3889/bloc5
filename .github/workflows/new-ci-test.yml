@@ -1,0 +1,65 @@
+name: CI - Test PHP
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Récupérer le code source
+        uses: actions/checkout@v4
+      
+      - name: Créer le fichier .env.dev pour les tests
+        run: |
+          cat <<EOF > .env.dev
+          ENV_FILE=.env.dev
+          APACHE_CONF=dev.conf
+          APP_ENV=dev
+          APP_PORT=8080
+          DB_PORT=3306
+          MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE_DEV }}
+          MYSQL_USER=${{ secrets.MYSQL_USER_DEV }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD_DEV }}
+          MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD_DEV }}
+          DB_CONNECTION=mysql
+          DB_HOST=db
+          DB_DATABASE=${{ secrets.MYSQL_DATABASE_DEV }}
+          DB_USERNAME=${{ secrets.MYSQL_USER_DEV }}
+          DB_PASSWORD=${{ secrets.MYSQL_PASSWORD_DEV }}
+          EOF
+      
+      - name: Build et démarrer les services
+        run: |
+          docker-compose --env-file .env.dev -f docker-compose.yaml build --build-arg APP_ENV=dev
+          docker-compose --env-file .env.dev -f docker-compose.yaml up -d
+      
+      - name: Attendre que les services soient prêts
+        run: |
+          echo "Attente des services..."
+          sleep 30
+          
+          # Vérifier que l'application web répond
+          docker-compose --env-file .env.dev exec -T web curl -f http://localhost || echo "App not ready yet"
+      
+      - name: Exécuter les tests PHPUnit
+        run: |
+          docker-compose --env-file .env.dev exec -T web phpunit tests/Unit/ tests/Controllers/
+      
+      - name: Afficher les logs en cas d'erreur
+        if: failure()
+        run: |
+          docker-compose --env-file .env.dev logs
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          docker-compose --env-file .env.dev down -v
