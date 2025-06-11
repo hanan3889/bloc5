@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Récupérer le code source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Cette étape installe Docker et Docker Compose. Bien que nous n'utilisions plus docker-compose pour le build/run ici,
       # elle assure que Docker est entièrement prêt sur l'exécuteur.
