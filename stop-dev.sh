@@ -1,5 +1,7 @@
 #!/bin/bash
 
-echo "Stopping dev containers..."
-docker compose --env-file .env.dev --profile dev stop
-echo "Dev containers stopped."
+echo "⏳ Stopping dev containers..."
+
+docker stop videgrenier-web-dev videgrenier-db-dev
+
+echo "🛑 Dev containers stopped."

@@ -24,32 +24,40 @@ class Product extends \Core\Controller
     public function indexAction()
     {
         if (isset($_POST['submit'])) {
-            try {
-                $f = $_POST;
-                $files = $_FILES;
 
-                // Validation
-                if ($this->validate($f, $files)) {
+            $errors = [];
+
+            // Vérification de l'image
+            if (!isset($_FILES['picture']) || $_FILES['picture']['error'] === UPLOAD_ERR_NO_FILE) {
+                $errors[] = "Une photo est obligatoire pour publier une annonce.";
+            }
+
+            if (empty($errors)) {
+                try {
+                    $f = $_POST;
                     $f['user_id'] = $_SESSION['user']['id'];
                     $id = Articles::save($f);
 
-                    $pictureName = Upload::uploadFile($files['picture'], $id);
+                    $pictureName = Upload::uploadFile($_FILES['picture'], $id);
                     Articles::attachPicture($id, $pictureName);
 
                     header('Location: /product/' . $id);
-                    exit(); 
-                }
-            } catch (\Exception $e) {
-                error_log($e->getMessage()); // Log the exception
-                $this->errors[] = "Une erreur inattendue est survenue. Veuillez réessayer.";
-            }
-        }
+                    exit;
 
-        View::renderTemplate('Product/Add.html', [
-            'errors' => $this->errors,
-            'old_input' => $_POST ?? [] 
-        ]);
+                } catch (\Exception $e) {
+                    $errors[] = "Une erreur s'est produite : " . $e->getMessage();
+                }
+            }
+
+            // Si erreur, on renvoie la vue avec message
+            View::renderTemplate('Product/Add.html', [
+                'errors' => $errors
+            ]);
+        } else {
+            View::renderTemplate('Product/Add.html');
+        }
     }
+
 
     /**
      * Affiche la page d'un produit
@@ -89,45 +97,6 @@ class Product extends \Core\Controller
         ]);
     }
 
-    /**
-     * Validate the form data.
-     *
-     * @param array $data The POST data.
-     * @param array $files The FILES data.
-     * @return bool True if validation passes, false otherwise.
-     */
-    private function validate($data, $files)
-    {
-        $isValid = true;
-
-        // On verifie que le nom, la description et la ville ne sont pas vides
-        if (empty($data['name'])) {
-            $this->errors[] = "Le titre est requis.";
-            $isValid = false;
-        }
-
-        if (empty($data['description'])) {
-            $this->errors[] = "La description est requise.";
-            $isValid = false;
-        }
-
-        if (empty($data['cityAutoComplete'])) {
-            $this->errors[] = "La ville est requise.";
-            $isValid = false;
-        }
-
-        // On verifie que l image est bien chargée
-        if (!isset($files['picture']) || $files['picture']['error'] === UPLOAD_ERR_NO_FILE) {
-            $this->errors[] = "Une image est requise.";
-            $isValid = false;
-        } elseif ($files['picture']['error'] !== UPLOAD_ERR_OK) {
-            // Message d erreur
-            $this->errors[] = "Erreur lors du téléchargement de l'image. Code: " . $files['picture']['error'];
-            $isValid = false;
-        }
-
-        return $isValid;
-    }
 
     /**
     * Gère la soumission du formulaire de contact pour le propriétaire d'un article spécifique.
@@ -140,42 +109,32 @@ class Product extends \Core\Controller
     */
     public function contactAction()
     {
-         // Récupérer l'ID de l'article à partir des paramètres de la route
-        $id = $this->route_params['id'] ?? null; 
-        
+        $id = $this->route_params['id'] ?? null;
 
-        if (empty($id)) {
-            // Afficher la page d'erreur 404 si l'ID de l'article n'est pas fourni
+        if (empty($id) || !ctype_digit($id)) {
             View::renderTemplate('Error/404.html');
             return;
         }
 
-        $article = null;
         try {
-            // Récupérer les informations sur l'article et le propriétaire par ID de l'article
-            $article = Articles::getWithOwnerById($id);
-            // $article = Articles::getOne($id);
+            $article = Articles::getWithOwnerById((int)$id);
         } catch (\Exception $e) {
-            // Log error and render 500 error page if retrieval fails
             error_log("ERROR in contactAction: Failed to retrieve article ID $id: " . $e->getMessage());
             View::renderTemplate('Error/500.html');
             return;
         }
 
-        if (!$article) { 
-            // Afficher la page d'erreur 404 si aucun article n'est trouvé
-            error_log("ERROR: Article ID " . $id . " not found in contactAction.");
+        if (!$article) {
+            error_log("ERROR: Article ID $id not found.");
             View::renderTemplate('Error/404.html');
             return;
         }
 
-         // Extraire les informations du propriétaire
         $owner = [
-            'id' => $article['user_id'], 
-            'username' => $article['user_username'],
-            'email' => $article['user_email']
+            'id' => (int)$article['user_id'],
+            'username' => htmlspecialchars($article['user_username'], ENT_QUOTES, 'UTF-8'),
+            'email' => filter_var($article['user_email'], FILTER_VALIDATE_EMAIL)
         ];
-        
 
         $errors = [];
         $successMessage = '';
@@ -184,76 +143,61 @@ class Product extends \Core\Controller
         $messageContent = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            // Nettoyer et valider les entrées du formulaire
-            $senderName = filter_input(INPUT_POST, 'name', FILTER_SANITIZE_STRING);
-            $senderEmail = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-            $messageContent = filter_input(INPUT_POST, 'message', FILTER_SANITIZE_STRING);
-            $subject = "Question concernant votre article: " . $article['article_name']; 
+            // Nettoyage et validation
+            $senderName = htmlspecialchars(trim($_POST['name'] ?? ''), ENT_QUOTES, 'UTF-8');
+            $senderEmail = filter_var(trim($_POST['email'] ?? ''), FILTER_VALIDATE_EMAIL);
+            $messageContent = htmlspecialchars(trim($_POST['message'] ?? ''), ENT_QUOTES, 'UTF-8');
 
-            // Vérifier les erreurs de validation
+
             if (empty($senderName)) {
                 $errors[] = "Votre nom est requis.";
             }
+
             if (!$senderEmail) {
                 $errors[] = "Une adresse email valide est requise.";
+            } elseif (preg_match("/[\r\n]/", $senderEmail)) {
+                $errors[] = "Adresse email invalide.";
             }
+
             if (empty($messageContent)) {
                 $errors[] = "Le message est requis.";
             }
 
             if (empty($errors)) {
-                // Prepare email headers and body
-                $to = $article['user_email']; 
-                $headers = "From: $senderEmail\r\n";
-                $headers .= "Reply-To: $senderEmail\r\n";
-                $headers .= "MIME-Version: 1.0\r\n";
-                $headers .= "Content-Type: text/plain; charset=utf-8\r\n";
+                $successMessage = "Votre message a été envoyé avec succès !";
+                $senderName = '';
+                $senderEmail = '';
+                $messageContent = '';
+                header("Location: /product/success");
+                    exit;
 
-                $body = "Message de $senderName ($senderEmail):\n\n$messageContent";
-                $mailSent = true;
-
-                
-
-                if (mail($to, $subject, $body, $headers)) {
-                    $successMessage = "Votre message a été envoyé avec succès au vendeur !";
-                // Réinitialiser les champs du formulaire après succès (optionnel)
-                    $senderName = '';
-                    $senderEmail = '';
-                    $messageContent = '';
-                } else {
-                // Définir le message d'erreur en cas d'échec de l'envoi de l'email
-                    $errors[] = "Erreur lors de l'envoi. Veuillez réessayer.";
-				 
-                }
             }
         }
 
-        // Log data passed to the contact form view
-        error_log("DEBUG contactAction: Data passed to Contact_form.html: " . print_r([
-            'article' => ['id' => $article['article_id'], 'name' => $article['article_name']],
-            'owner' => $owner, 
-            'errors' => $errors,
-            'successMessage' => $successMessage,
-            'senderName' => $senderName,
-            'senderEmail' => $senderEmail,
-            'message' => $messageContent
-        ], true)); 
-
-        error_log("DEBUG: About to render Product/Contact_form.html for article ID: " . $article['article_id']);
-
-        // Afficher la vue du formulaire de contact
+        // Affichage du formulaire (initial ou en cas d'erreur)
         View::renderTemplate('Product/Contact_form.html', [
             'article' => [
-                'id' => $article['article_id'], 
-                'name' => $article['article_name'] 
+                'id' => (int)$article['article_id'],
+                'name' => htmlspecialchars($article['article_name'], ENT_QUOTES, 'UTF-8')
             ],
-            'owner' => $owner, 
+            'owner' => $owner,
             'errors' => $errors,
             'successMessage' => $successMessage,
             'senderName' => $senderName,
             'senderEmail' => $senderEmail,
             'message' => $messageContent
         ]);
+    }
+
+    
+    /**
+     * Affiche la page de message de confirmation de formulaire de contact.
+     *
+     * @return void
+     */
+    public function successAction()
+    {
+        View::renderTemplate('Product/Success.html');
     }
 
 }
