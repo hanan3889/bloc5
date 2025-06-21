@@ -4,3 +4,4 @@ composer.lock
 .env.dev
 .env.prod
 apache/prod.conf
+apache/dev.conf
