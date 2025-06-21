@@ -98,3 +98,25 @@ namespace App\Utility {
         }
     }
 }
+
+namespace App\Models {
+    class User
+    {
+        public static $mockUserData = null; // Pour getByLogin
+
+        public static function getByLogin($email)
+        {
+            // Si une donnée mockée est définie et l'email correspond, retourne-la
+            if (self::$mockUserData && self::$mockUserData['email'] === $email) {
+                return self::$mockUserData;
+            }
+            // Sinon, retourne false pour simuler "utilisateur non trouvé"
+            return false;
+        }
+
+        public static function reset()
+        {
+            self::$mockUserData = null;
+        }
+    }
+}

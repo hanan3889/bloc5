@@ -19,40 +19,18 @@ use App\Utility\Auth;
  */
 class User extends \Core\Controller
 {
-    
 
     /**
      * Affiche la page de login
      */
-    // public function loginAction()
-    // {
-    //     if(isset($_POST['submit'])){
-    //         $f = $_POST;
-
-    //         // TODO: Validation
-
-    //         $this->login($f);
-
-    //         // Si login OK, redirige vers le compte
-    //         header('Location: /account');
-    //     }
-
-    //     View::renderTemplate('User/login.html');
-    // }
     public function loginAction()
     {
-        if (isset($_POST['submit'])) {
+        if(isset($_POST['submit'])){
             $f = $_POST;
-            // ... validation ...
-            $rememberMe = isset($f['remember_me']) && $f['remember_me'] === 'on';
-
-            $loginResult = $this->login($f, $rememberMe); // Stocke le résultat
-
-            // Ajoutez ceci temporairement pour voir ce que retourne login()
-            // var_dump($loginResult); 
-            // exit; // Arrête l'exécution pour voir le dump
-
-            if ($loginResult) { // Utilisez la variable de résultat
+            $remember_me = !empty($f['remember_me']); 
+            
+            $loginResult = $this->login($f, $remember_me);
+            if ($loginResult) {
                 header('Location: /account');
                 exit;
             } else {
@@ -62,7 +40,6 @@ class User extends \Core\Controller
         }
         View::renderTemplate('User/login.html');
     }
-
 
     /**
      * Page de création de compte
@@ -76,7 +53,7 @@ class User extends \Core\Controller
             // Vérification des mots de passe
             if ($f['password'] !== $f['password-check']) {
                 // TODO: Gérer l'erreur utilisateur via une session flash ou un message dans la vue
-                echo "❌ Mots de passe différents<br>";
+                echo "Mots de passe différents<br>";
                 return;
             }
 
@@ -89,16 +66,14 @@ class User extends \Core\Controller
                 UserRegister::createUser($f);
 
             } catch (Exception $e) {
-                // Gère les erreurs lors de l'enregistrement de l'utilisateur (ex: email déjà utilisé, erreur DB)
-                // TODO: Logger l'erreur et afficher un message générique à l'utilisateur
-                echo "❌ Erreur lors de l'enregistrement de l'utilisateur : " . $e->getMessage() . "<br>";
+                echo "Erreur lors de l'enregistrement de l'utilisateur : " . $e->getMessage() . "<br>";
                 return;
             }
 
             // Recherche l'utilisateur fraîchement créé pour récupérer toutes ses informations
             $user = UserRegister::findByEmail($f['email']);
             if (!$user) {
-                echo "❌ Utilisateur introuvable après l'enregistrement<br>";
+                echo "Utilisateur introuvable après l'enregistrement<br>";
                 exit; 
             }
 
@@ -113,8 +88,6 @@ class User extends \Core\Controller
 
         View::renderTemplate('User/register.html');
     }
-
-
 
 
     /**
@@ -172,7 +145,7 @@ class User extends \Core\Controller
         try {
             // Vérification si l'email est présent et non vide.
             if (!isset($data['email']) || empty($data['email'])) {
-                return false; // Échec de la connexion : email manquant.
+                return false; 
             }
 
             // Récupère l'utilisateur par son email depuis la base de données.
@@ -180,29 +153,26 @@ class User extends \Core\Controller
 
             // Vérifie si un utilisateur a été trouvé.
             if (!$user) {
-                return false; // Échec de la connexion : utilisateur non trouvé.
+                return false; 
             }
 
-            // Vérifie si le mot de passe soumis correspond au hash stocké en base de données.
-            // Utilise password_verify() qui est la fonction standard pour les mots de passe hachés avec password_hash().
             if (!password_verify($data['password'], $user['password'])) {
-                return false; // Échec de la connexion : mot de passe incorrect.
+                return false; 
             }
 
-            // Si l'utilisateur est trouvé et le mot de passe est correct,
-            // appelle la méthode de connexion de la classe Auth pour gérer la session
-            // et le cookie "Remember Me" si l'option est activée.
-            \App\Utility\Auth::login($user, $remember_me);
+            \App\Utility\Auth::login($user, $remember_me); 
 
-            // La connexion a réussi.
+            if (isset($_COOKIE['remember_user_token'])) {
+                error_log('Cookie présent: ' . $_COOKIE['remember_user_token']);
+            } else {
+                error_log('Cookie absent');
+            }
+
             return true;
 
         } catch (Exception $ex) {
-            // En cas d'exception (par exemple, problème de base de données),
-            // enregistre l'erreur pour le débogage en arrière-plan et retourne false.
-            // N'affichez pas le message d'erreur détaillé à l'utilisateur final pour des raisons de sécurité.
             error_log("Unhandled exception during login: " . $ex->getMessage() . " on line " . $ex->getLine() . " in " . $ex->getFile());
-            return false; // Échec de la connexion dû à une erreur interne.
+            return false; 
         }
     }
 

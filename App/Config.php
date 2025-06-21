@@ -32,4 +32,5 @@ namespace App;
      */
     const REMEMBER_ME_COOKIE_NAME = 'remember_user_token';
     const REMEMBER_ME_EXPIRY_DAYS = 30; // Duree de validite du cookie en jours
+    const HTTPS_ONLY = false;
 }
