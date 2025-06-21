@@ -24,21 +24,45 @@ class User extends \Core\Controller
     /**
      * Affiche la page de login
      */
+    // public function loginAction()
+    // {
+    //     if(isset($_POST['submit'])){
+    //         $f = $_POST;
+
+    //         // TODO: Validation
+
+    //         $this->login($f);
+
+    //         // Si login OK, redirige vers le compte
+    //         header('Location: /account');
+    //     }
+
+    //     View::renderTemplate('User/login.html');
+    // }
     public function loginAction()
     {
-        if(isset($_POST['submit'])){
+        if (isset($_POST['submit'])) {
             $f = $_POST;
+            // ... validation ...
+            $rememberMe = isset($f['remember_me']) && $f['remember_me'] === 'on';
 
-            // TODO: Validation
+            $loginResult = $this->login($f, $rememberMe); // Stocke le résultat
 
-            $this->login($f);
+            // Ajoutez ceci temporairement pour voir ce que retourne login()
+            // var_dump($loginResult); 
+            // exit; // Arrête l'exécution pour voir le dump
 
-            // Si login OK, redirige vers le compte
-            header('Location: /account');
+            if ($loginResult) { // Utilisez la variable de résultat
+                header('Location: /account');
+                exit;
+            } else {
+                View::renderTemplate('User/login.html', ['error' => 'Email ou mot de passe incorrect.']);
+                return;
+            }
         }
-
         View::renderTemplate('User/login.html');
     }
+
 
     /**
      * Page de création de compte
@@ -130,32 +154,55 @@ class User extends \Core\Controller
         }
     }
 
-    private function login($data){
+    /**
+     * Gère le processus de connexion utilisateur.
+     * 
+     * Valide la présence d'un email dans les données fournies et tente de 
+     * récupérer l'utilisateur depuis la base de données. Si l'utilisateur existe 
+     * et que le mot de passe correspond, établit une session et définit 
+     * optionnellement un cookie "Se souvenir de moi".
+     * 
+     * @param array $data Identifiants utilisateur, incluant 'email' et 'password'.
+     * @param bool $remember_me Indique si l'option "Se souvenir de moi" est sélectionnée.
+     * @return bool True en cas de connexion réussie, false en cas d'échec.
+     * @throws Exception Si une erreur non gérée survient pendant le processus de connexion.
+     */
+    private function login($data, bool $remember_me = false)
+    {
         try {
-            if(!isset($data['email'])){
-                throw new Exception('TODO');
+            // Vérification si l'email est présent et non vide.
+            if (!isset($data['email']) || empty($data['email'])) {
+                return false; // Échec de la connexion : email manquant.
             }
 
+            // Récupère l'utilisateur par son email depuis la base de données.
             $user = \App\Models\User::getByLogin($data['email']);
 
-            if (Hash::generate($data['password'], $user['salt']) !== $user['password']) {
-                return false;
+            // Vérifie si un utilisateur a été trouvé.
+            if (!$user) {
+                return false; // Échec de la connexion : utilisateur non trouvé.
             }
 
-            // TODO: Create a remember me cookie if the user has selected the option
-            // to remained logged in on the login form.
-            // https://github.com/andrewdyer/php-mvc-register-login/blob/development/www/app/Model/UserLogin.php#L86
+            // Vérifie si le mot de passe soumis correspond au hash stocké en base de données.
+            // Utilise password_verify() qui est la fonction standard pour les mots de passe hachés avec password_hash().
+            if (!password_verify($data['password'], $user['password'])) {
+                return false; // Échec de la connexion : mot de passe incorrect.
+            }
 
-            $_SESSION['user'] = array(
-                'id' => $user['id'],
-                'username' => $user['username'],
-            );
+            // Si l'utilisateur est trouvé et le mot de passe est correct,
+            // appelle la méthode de connexion de la classe Auth pour gérer la session
+            // et le cookie "Remember Me" si l'option est activée.
+            \App\Utility\Auth::login($user, $remember_me);
 
+            // La connexion a réussi.
             return true;
 
         } catch (Exception $ex) {
-            // TODO : Set flash if error
-            /* Utility\Flash::danger($ex->getMessage());*/
+            // En cas d'exception (par exemple, problème de base de données),
+            // enregistre l'erreur pour le débogage en arrière-plan et retourne false.
+            // N'affichez pas le message d'erreur détaillé à l'utilisateur final pour des raisons de sécurité.
+            error_log("Unhandled exception during login: " . $ex->getMessage() . " on line " . $ex->getLine() . " in " . $ex->getFile());
+            return false; // Échec de la connexion dû à une erreur interne.
         }
     }
 
