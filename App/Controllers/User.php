@@ -19,7 +19,6 @@ use App\Utility\Auth;
  */
 class User extends \Core\Controller
 {
-    
 
     /**
      * Affiche la page de login
@@ -28,15 +27,17 @@ class User extends \Core\Controller
     {
         if(isset($_POST['submit'])){
             $f = $_POST;
-
-            // TODO: Validation
-
-            $this->login($f);
-
-            // Si login OK, redirige vers le compte
-            header('Location: /account');
+            $remember_me = !empty($f['remember_me']); 
+            
+            $loginResult = $this->login($f, $remember_me);
+            if ($loginResult) {
+                header('Location: /account');
+                exit;
+            } else {
+                View::renderTemplate('User/login.html', ['error' => 'Email ou mot de passe incorrect.']);
+                return;
+            }
         }
-
         View::renderTemplate('User/login.html');
     }
 
@@ -52,7 +53,7 @@ class User extends \Core\Controller
             // Vérification des mots de passe
             if ($f['password'] !== $f['password-check']) {
                 // TODO: Gérer l'erreur utilisateur via une session flash ou un message dans la vue
-                echo "❌ Mots de passe différents<br>";
+                echo "Mots de passe différents<br>";
                 return;
             }
 
@@ -65,16 +66,14 @@ class User extends \Core\Controller
                 UserRegister::createUser($f);
 
             } catch (Exception $e) {
-                // Gère les erreurs lors de l'enregistrement de l'utilisateur (ex: email déjà utilisé, erreur DB)
-                // TODO: Logger l'erreur et afficher un message générique à l'utilisateur
-                echo "❌ Erreur lors de l'enregistrement de l'utilisateur : " . $e->getMessage() . "<br>";
+                echo "Erreur lors de l'enregistrement de l'utilisateur : " . $e->getMessage() . "<br>";
                 return;
             }
 
             // Recherche l'utilisateur fraîchement créé pour récupérer toutes ses informations
             $user = UserRegister::findByEmail($f['email']);
             if (!$user) {
-                echo "❌ Utilisateur introuvable après l'enregistrement<br>";
+                echo "Utilisateur introuvable après l'enregistrement<br>";
                 exit; 
             }
 
@@ -89,8 +88,6 @@ class User extends \Core\Controller
 
         View::renderTemplate('User/register.html');
     }
-
-
 
 
     /**
@@ -130,32 +127,52 @@ class User extends \Core\Controller
         }
     }
 
-    private function login($data){
+    /**
+     * Gère le processus de connexion utilisateur.
+     * 
+     * Valide la présence d'un email dans les données fournies et tente de 
+     * récupérer l'utilisateur depuis la base de données. Si l'utilisateur existe 
+     * et que le mot de passe correspond, établit une session et définit 
+     * optionnellement un cookie "Se souvenir de moi".
+     * 
+     * @param array $data Identifiants utilisateur, incluant 'email' et 'password'.
+     * @param bool $remember_me Indique si l'option "Se souvenir de moi" est sélectionnée.
+     * @return bool True en cas de connexion réussie, false en cas d'échec.
+     * @throws Exception Si une erreur non gérée survient pendant le processus de connexion.
+     */
+    private function login($data, bool $remember_me = false)
+    {
         try {
-            if(!isset($data['email'])){
-                throw new Exception('TODO');
+            // Vérification si l'email est présent et non vide.
+            if (!isset($data['email']) || empty($data['email'])) {
+                return false; 
             }
 
+            // Récupère l'utilisateur par son email depuis la base de données.
             $user = \App\Models\User::getByLogin($data['email']);
 
-            if (Hash::generate($data['password'], $user['salt']) !== $user['password']) {
-                return false;
+            // Vérifie si un utilisateur a été trouvé.
+            if (!$user) {
+                return false; 
             }
 
-            // TODO: Create a remember me cookie if the user has selected the option
-            // to remained logged in on the login form.
-            // https://github.com/andrewdyer/php-mvc-register-login/blob/development/www/app/Model/UserLogin.php#L86
+            if (!password_verify($data['password'], $user['password'])) {
+                return false; 
+            }
 
-            $_SESSION['user'] = array(
-                'id' => $user['id'],
-                'username' => $user['username'],
-            );
+            \App\Utility\Auth::login($user, $remember_me); 
+
+            if (isset($_COOKIE['remember_user_token'])) {
+                error_log('Cookie présent: ' . $_COOKIE['remember_user_token']);
+            } else {
+                error_log('Cookie absent');
+            }
 
             return true;
 
         } catch (Exception $ex) {
-            // TODO : Set flash if error
-            /* Utility\Flash::danger($ex->getMessage());*/
+            error_log("Unhandled exception during login: " . $ex->getMessage() . " on line " . $ex->getLine() . " in " . $ex->getFile());
+            return false; 
         }
     }
 

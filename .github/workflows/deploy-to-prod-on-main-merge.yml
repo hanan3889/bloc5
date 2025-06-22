@@ -1,0 +1,71 @@
+
+name: CD - Deploy Prod Image to Registry (on main merge) 
+
+on:
+  push: 
+    branches:
+      - main 
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  APP_ENV_PROD: prod 
+  APACHE_CONF_PROD: prod.conf 
+  IMAGE_TAG: latest 
+
+jobs:
+  build-and-deploy: 
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write 
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+   
+      - name: "Detected merge into 'main' branch. Updating prod containers..."
+        run: |
+          echo "Detected merge into 'main' branch. Updating prod containers..."
+
+      # Construire et pousser l'image Docker de production finale
+      - name: Build and Push Prod Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} 
+          build-args: |
+            APP_ENV=${{ env.APP_ENV_PROD }}
+            APACHE_CONF=${{ env.APACHE_CONF_PROD }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+     
+      - name: "Stopping existing prod containers..."
+        run: |
+          echo "Simulating: ./stop-prod.sh" # Ce script s'exécuterait sur votre serveur réel
+          echo "Prod containers stopped."
+
+      - name: "Simulate: Starting new prod containers..."
+        run: |
+          echo "Simulating: ./start-prod.sh (rebuilds image if necessary)" # Ce script s'exécuterait sur votre serveur réel
+          echo "Prod containers started successfully!"
+
+      - name: "Deployment simulation complete"
+        run: |
+          echo "Prod container image pushed to registry and deployment simulated."
+          echo "To deploy to your actual server, pull the image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} and restart your containers."
