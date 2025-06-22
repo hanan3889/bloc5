@@ -1,35 +1,42 @@
-# Include any files or directories that you don't want to be copied to your
-# container here (e.g., local build artifacts, temporary files, etc.).
-#
-# For more help, visit the .dockerignore file reference guide at
-# https://docs.docker.com/go/build-context-dockerignore/
+# -----------------------------------------------------------------------------
+# Fichiers et répertoires liés au contrôle de version (Git)
+# -----------------------------------------------------------------------------
+.git/        
+.gitignore    
 
-**/.classpath
-**/.dockerignore
-**/.env
-**/.git
-**/.gitignore
-**/.project
-**/.settings
-**/.toolstarget
-**/.vs
-**/.vscode
-**/.next
-**/.cache
-**/*.*proj.user
-**/*.dbmdl
-**/*.jfm
-**/charts
-**/docker-compose*
-**/compose.y*ml
-!**/composer.json
-!**/composer.lock
-**/Dockerfile*
-**/node_modules
-**/npm-debug.log
-**/obj
-**/secrets.dev.yaml
-**/values.dev.yaml
-**/vendor
-LICENSE
-README.md
+# -----------------------------------------------------------------------------
+# Fichiers et répertoires spécifiques aux IDE et éditeurs de code
+# -----------------------------------------------------------------------------
+.vscode/       
+
+# -----------------------------------------------------------------------------
+# Fichiers de configuration Docker et de build eux-mêmes
+# -----------------------------------------------------------------------------
+Dockerfile* 
+docker-compose*.yaml 
+
+# -----------------------------------------------------------------------------
+# Fichiers et répertoires de build temporaires, caches ou générés localement
+# -----------------------------------------------------------------------------
+.cache/       
+node_modules/
+
+# -----------------------------------------------------------------------------
+# Fichiers de secrets et de configuration sensibles ou spécifiques à l'environnement
+# NE JAMAIS INCLURE DE SECRETS DANS UNE IMAGE DOCKER DE PRODUCTION.
+# -----------------------------------------------------------------------------
+.env.dev    # Fichier d'environnement de développement
+.env.prod   # Fichier d'environnement de production          
+
+# -----------------------------------------------------------------------------
+# Fichiers et répertoires liés au développement ou aux tests qui ne sont pas
+# nécessaires au bon fonctionnement de l'application en production.
+# -----------------------------------------------------------------------------
+tests/         
+vendor/        
+
+# -----------------------------------------------------------------------------
+# Fichiers de documentation q
+# -----------------------------------------------------------------------------
+README.md    
+*.md           
