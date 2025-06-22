@@ -11,7 +11,7 @@ env:
   REGISTRY: ghcr.io # GitHub Container Registry
   IMAGE_NAME: ${{ github.repository }} # Nom de l'image (ex: votre-org/votre-repo)
   APP_ENV_CI: dev # Force l'environnement à 'dev' pour le build de l'image Docker de CI (installe PHPUnit)
-  APACHE_CONF_CI: 000-default.conf # Nom du fichier de configuration Apache à utiliser
+  APACHE_CONF_CI: dev.conf # Nom du fichier de configuration Apache à utiliser
 
 jobs:
   build-test-push:
