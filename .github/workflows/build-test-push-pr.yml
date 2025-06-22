@@ -25,47 +25,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # NOUVELLE ÉTAPE: Configurer Docker Buildx avec le driver 'docker-container'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3 # Utilise l'action pour configurer Buildx
+
       # Étape 1: Se connecter à GitHub Container Registry (ghcr.io)
-      # Le GITHUB_TOKEN est automatiquement disponible et a les permissions 'packages:write'
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }} # Nom d'utilisateur GitHub de l'acteur qui déclenche le workflow
-          password: ${{ secrets.GITHUB_TOKEN }} # Token fourni automatiquement par GitHub Actions
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Étape 2: Construire l'image Docker
+      # Étape 2: Construire l'image Docker (maintenant avec le cache Buildx fonctionnel)
       - name: Build Docker image
         id: build-docker-image
         uses: docker/build-push-action@v5
         with:
-          context: . # Le contexte de build est la racine du dépôt
-          file: ./Dockerfile # Spécifie explicitement le chemin de votre Dockerfile
-          push: false # Ne pas pousser tout de suite, nous allons la tester d'abord
-          load: true # Charge l'image dans le démon Docker de l'exécuteur pour l'étape de test
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
           build-args: |
             APP_ENV=${{ env.APP_ENV_CI }}
             APACHE_CONF=${{ env.APACHE_CONF_CI }}
-          cache-from: type=gha # Utilise le cache GitHub Actions pour accélérer les builds
-          cache-to: type=gha,mode=max # Met en cache pour les prochains builds
+          cache-from: type=gha # Maintenant supporté
+          cache-to: type=gha,mode=max # Maintenant supporté
 
       # Étape 3: Exécuter les tests PHPUnit à l'intérieur du conteneur Docker buildé
-      # C'est la meilleure approche puisque PHPUnit est installé dans l'image pour APP_ENV=dev
       - name: Run PHPUnit tests inside Docker container
         run: |
           echo "Running PHPUnit tests inside the Docker container..."
-          # Lance un conteneur temporaire à partir de l'image buildée
-          # et exécute la commande phpunit.
-          # Assurez-vous que PHPUnit est bien accessible via /usr/local/bin/phpunit dans le conteneur
           docker run --rm \
             -v $(pwd):/var/www/html \
             -e APP_ENV=${{ env.APP_ENV_CI }} \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }} \
-            /usr/local/bin/phpunit --verbose tests/Controllers/ProductControllerTest.php # ASSUREZ-VOUS QUE CE CHEMIN EST CORRECT
+            /usr/local/bin/phpunit --verbose tests/Controllers/ProductControllerTest.php
 
       # Étape 4 (Optionnel): Vérification rapide de l'application dans le conteneur
-      # Cette étape est purement informative pour voir si le conteneur démarre.
       - name: Basic application container verification
         run: |
           echo "Starting Docker container for basic verification..."
@@ -76,23 +74,21 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
           echo "Container 'my-app-test' started on port 8080. Waiting 10 seconds..."
           sleep 10
-
           echo "Stopping and removing container 'my-app-test'..."
           docker stop my-app-test || true
           docker rm my-app-test || true
 
       # Étape 5: Pousser l'image vers GitHub Container Registry (ghcr.io)
-      # Cette étape ne sera exécutée que si toutes les étapes précédentes (build et tests) ont réussi.
       - name: Push Docker image to GitHub Container Registry
-        if: success() # Pousse seulement si toutes les étapes précédentes ont réussi
+        if: success()
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
-          push: true # C'est ici que l'image est PUSHÉE
+          push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-${{ github.event.pull_request.number }}
           build-args: |
             APP_ENV=${{ env.APP_ENV_CI }}
             APACHE_CONF=${{ env.APACHE_CONF_CI }}
-          cache-from: type=gha # Utilise le cache pour un push plus rapide
+          cache-from: type=gha
           cache-to: type=gha,mode=max
