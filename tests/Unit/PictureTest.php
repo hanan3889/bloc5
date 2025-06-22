@@ -2,9 +2,9 @@
 
 use PHPUnit\Framework\TestCase;
 use App\Controllers\Product;
-use App\Models\Articles; // Importez pour pouvoir mocker
-use App\Utility\Upload;   // Importez pour pouvoir mocker
-use Core\View;            // Importez pour pouvoir mocker
+use App\Models\Articles; 
+use App\Utility\Upload;   
+use Core\View;            
 
 class PictureTest extends TestCase
 {
