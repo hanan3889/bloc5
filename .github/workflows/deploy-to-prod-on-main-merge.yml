@@ -1,8 +1,9 @@
 
-name: CD - Deploy Prod Image to Registry (on main merge)
+name: CD - Deploy Prod Image (on Main PR) 
 
 on:
-  push:
+  pull_request:
+    types: [opened, synchronize, reopened] 
     branches:
       - main 
 
@@ -19,6 +20,7 @@ jobs:
     permissions:
       contents: read
       packages: write 
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,29 +35,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      
+      # Construire et pousser l'image Docker de production finale avec des tags multiples
       - name: Build and Push Prod Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
           push: true
+          
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest # Toujours le dernier build sur main
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} # Tag avec le SHA complet du commit
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:build-${{ github.run_number }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.0.${{ github.run_number }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-main-${{ github.event.pull_request.number }} 
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} 
           build-args: |
             APP_ENV=${{ env.APP_ENV_PROD }}
             APACHE_CONF=${{ env.APACHE_CONF_PROD }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: "Image Build and Push Complete"
+      - name: "Image Build and Push Complete for Main PR"
         run: |
-          echo "Prod container image has been successfully built and pushed to the registry."
-          echo "--- Image Tags ---"
-          echo "  - Latest: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
-          echo "  - Commit SHA: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          echo "  - Build Number: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:build-${{ github.run_number }}"
-          echo "  - Versioned: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v1.0.${{ github.run_number }}"
+          echo "L'image Docker pour la PR vers main a été construite et poussée avec succès."
+          echo "--- Tags de l'image ---"
+          echo "  - Spécifique à la PR: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-main-${{ github.event.pull_request.number }}"
+          echo "  - Basé sur le SHA du commit: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
