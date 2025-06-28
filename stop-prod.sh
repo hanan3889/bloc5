@@ -1,7 +1,7 @@
 #!/bin/bash
-echo "Stopping prod containers..."
 
-# Arrêtez les conteneurs directement par leurs noms
-docker stop videgrenier-web-prod videgrenier-db-prod
+echo "🛑 Arrêt de l'environnement PROD..."
 
-echo "🛑 Prod containers stopped."
+docker-compose -f docker-compose.yaml -p vide-grenier-prod down
+
+echo "✅ Environnement PROD arrêté."

@@ -42,6 +42,7 @@ $router->add('{controller}/{action}');
 $router->add('product/contact/{id:\d+}', ['controller' => 'Product','action' => 'contact','private' => true]);
 $router->add('product/{id}', ['controller' => 'Product', 'action' => 'show']); // Route pour afficher l'article
 $router->add('product/contact/{id}', ['controller' => 'Product', 'action' => 'contact']); // Route pour le contact
+$router->add('api/documentation', ['controller' => 'Api', 'action' => 'documentation']);
 
 
 
