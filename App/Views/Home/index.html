@@ -11,6 +11,16 @@
                 <div class="content-block head-div">
                     <div class="cb-header">
                         <div class="row">
+                            <div class="col-lg-12" style="margin-bottom: 15px;">
+                                <form class="form-inline" onsubmit="searchProducts(event)">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" id="search-input" placeholder="Rechercher un produit..." style="width: 300px;">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Rechercher</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="row">
                             <div class="col-lg-10 col-sm-10 col-xs-8">
                                 <ul class="list-inline">
                                     <li>
@@ -63,8 +73,29 @@
                 url: "/api/products" + '?sort=' + option,
             }).done(function(result) {
                 $('#articlelist').empty();
-                for(let i = 0; i < result.length; i++){
-                    renderProduct(result[i])
+                if(result.length > 0){
+                    for(let i = 0; i < result.length; i++){
+                        renderProduct(result[i])
+                    }
+                } else {
+                    $('#articlelist').html('<div class="col-lg-12"><p>Aucun produit à afficher.</p></div>');
+                }
+            });
+        }
+
+        function searchProducts(event){
+            event.preventDefault();
+            let query = $('#search-input').val();
+            $.ajax({
+                url: "/api/products?search=" + query,
+            }).done(function(result) {
+                $('#articlelist').empty();
+                if(result.length > 0){
+                    for(let i = 0; i < result.length; i++){
+                        renderProduct(result[i])
+                    }
+                } else {
+                    $('#articlelist').html('<div class="col-lg-12"><p>Aucun produit trouvé.</p></div>');
                 }
             });
         }
