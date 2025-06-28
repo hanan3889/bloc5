@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "⏳ Stopping dev containers..."
+echo "🛑 Arrêt de l'environnement DEV..."
 
-docker stop videgrenier-web-dev videgrenier-db-dev
+docker-compose -f docker-compose.yaml -p vide-grenier-dev down
 
-echo "🛑 Dev containers stopped."
+echo "✅ Environnement DEV arrêté."

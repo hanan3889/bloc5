@@ -182,4 +182,22 @@ class Articles extends Model {
         $stmt->execute([$id]);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
+    
+    /**
+     * Search articles by name.
+     * @access public
+     * @param string $searchTerm The term to search for.
+     * @return array The matching articles.
+     * @throws Exception
+     */
+    public static function searchByName($searchTerm) {
+        $db = static::getDB();
+        $stmt = $db->prepare('
+            SELECT * FROM articles
+            WHERE name LIKE :searchTerm OR description LIKE :searchTerm
+        ');
+        $stmt->bindValue(':searchTerm', '%' . $searchTerm . '%');
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
