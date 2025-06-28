@@ -20,9 +20,12 @@ class Api extends \Core\Controller
      */
     public function ProductsAction()
     {
-        $query = $_GET['sort'];
-
-        $articles = Articles::getAll($query);
+        if (isset($_GET['search'])) {
+            $articles = Articles::searchByName($_GET['search']);
+        } else {
+            $query = $_GET['sort'] ?? '';
+            $articles = Articles::getAll($query);
+        }
 
         header('Content-Type: application/json');
         echo json_encode($articles);
