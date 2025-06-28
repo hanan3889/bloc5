@@ -2,7 +2,6 @@
 
 echo "🚀 Démarrage de l'environnement DEV..."
 
-# docker start videgrenier-web-dev videgrenier-db-dev
-docker-compose --env-file .env.dev -f docker-compose.yaml -p vide-grenier-dev up -d
+docker-compose -f docker-compose.yaml -p vide-grenier-dev up -d web-dev db-dev
 
-echo "🎉 Environnement DEV demarré sur http://localhost:9000"
+echo "🎉 Environnement DEV demarré sur http://videgrenier-dev"
