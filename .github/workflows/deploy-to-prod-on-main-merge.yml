@@ -49,8 +49,8 @@ jobs:
           push: true # Indique de pousser l'image vers le registre
           
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-main-${{ github.event.pull_request.number }} # Tag spécifique à la PR
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} # Tag basé sur le SHA du commit
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-main-${{ github.event.pull_request.number }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           build-args: |
             APP_ENV=${{ env.APP_ENV_PROD }}
             APACHE_CONF=${{ env.APACHE_CONF_PROD }}

@@ -5,9 +5,10 @@
 name: Build Dev Docker Image on Push to Develop
 
 on:
-  push:
+  pull_request:
+    types: [opened, synchronize, reopened]
     branches:
-      - develop # Se déclenche lors d'un push sur la branche 'develop'
+      - develop # Se déclenche pour les PR ciblant la branche 'develop'
 
 jobs:
   build-dev-image:
