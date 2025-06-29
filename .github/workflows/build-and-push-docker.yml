@@ -5,7 +5,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
-      - preprod # Se déclenche pour les PR ciblant 'preprod'
+      - main # Se déclenche pour les PR ciblant 'main'
 
 env:
   REGISTRY: ghcr.io # GitHub Container Registry
