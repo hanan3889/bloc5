@@ -58,7 +58,7 @@ jobs:
 
       - name: Create and Push Git Tag # Crée et pousse le tag de version
         run: |
-          TAG_NAME="V.1.2"
+          TAG_NAME="V.1.2-${{ github.run_number }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a $TAG_NAME -m "Release $TAG_NAME"
