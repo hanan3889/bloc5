@@ -1,15 +1,14 @@
 # Workflow: CI/CD pour l'image de production
-# Ce workflow se déclenche lors d'une Pull Request ciblant la branche 'main'.
+# Ce workflow se déclenche lors d'un push sur la branche 'main'.
 # Il est responsable de la construction et du push de l'image Docker de production
-# vers le GitHub Container Registry (GHCR).
+# vers le GitHub Container Registry (GHCR), et de la création d'un tag de version.
 
-name: CI/CD - Build & Push Prod Image (on PR to Main)
+name: CI/CD - Build, Push Prod Image & Tag (on Push to Main)
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  push:
     branches:
-      - main # Se déclenche pour les PR ciblant la branche principale (main)
+      - main # Se déclenche lors d'un push sur la branche principale (main)
 
 env:
   REGISTRY: ghcr.io # Registre de conteneurs GitHub
@@ -22,12 +21,14 @@ jobs:
     runs-on: ubuntu-latest # Exécute le job sur une machine virtuelle Ubuntu
 
     permissions:
-      contents: read # Permet de lire le contenu du dépôt
+      contents: write # Permet de lire et écrire le contenu du dépôt (nécessaire pour les tags)
       packages: write # Permet de pousser des packages (images Docker) vers GHCR
 
     steps:
       - name: Checkout repository # Étape pour cloner le dépôt Git
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Nécessaire pour que git tag fonctionne correctement
 
       - name: Set up Docker Buildx # Configure Docker Buildx pour des builds performants
         uses: docker/setup-buildx-action@v3
@@ -40,7 +41,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # Construire et pousser l'image Docker de production
-      # L'image est taguée avec le numéro de la PR et le SHA du commit pour la traçabilité.
+      # L'image est taguée avec le SHA du commit.
       - name: Build and Push Prod Docker Image
         uses: docker/build-push-action@v5
         with:
@@ -48,18 +49,22 @@ jobs:
           file: ./Dockerfile # Chemin vers le Dockerfile
           push: true # Indique de pousser l'image vers le registre
           
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-main-${{ github.event.pull_request.number }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} # Tag basé sur le SHA du commit
           build-args: |
             APP_ENV=${{ env.APP_ENV_PROD }}
             APACHE_CONF=${{ env.APACHE_CONF_PROD }}
           cache-from: type=gha # Utilise le cache GitHub Actions pour accélérer les builds
           cache-to: type=gha,mode=max # Met en cache l'image pour les builds futurs
 
-      - name: "Image Build and Push Complete for Main PR" # Message de confirmation
+      - name: Create and Push Git Tag # Crée et pousse le tag de version
         run: |
-          echo "L'image Docker pour la PR vers main a été construite et poussée avec succès."
-          echo "--- Tags de l'image ---"
-          echo "  - Spécifique à la PR: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-main-${{ github.event.pull_request.number }}"
-          echo "  - Basé sur le SHA du commit: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          TAG_NAME="V.1.2"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a $TAG_NAME -m "Release $TAG_NAME"
+          git push origin $TAG_NAME
+
+      - name: "Workflow Complete" # Message de confirmation
+        run: |
+          echo "L'image Docker de production a été construite et poussée avec succès."
+          echo "Le tag $TAG_NAME a été créé et poussé."
