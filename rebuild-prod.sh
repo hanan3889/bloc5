@@ -13,7 +13,7 @@ docker rm -f videgrenier-web-prod videgrenier-db-prod || true
 docker-compose -f docker-compose.prod.yaml down --remove-orphans --volumes || true
 
 echo "🚀 Reconstruction de l'image Docker PROD (web-prod)..."
-docker-compose -f docker-compose.prod.yaml build web-prod
+docker-compose -f docker-compose.prod.yaml build --no-cache web-prod
 
 echo "🚀 Arrêt des conteneurs PROD avant redémarrage..."
 docker-compose -f docker-compose.prod.yaml stop web-prod db-prod || true
