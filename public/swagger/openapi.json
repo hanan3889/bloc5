@@ -11,21 +11,12 @@
         "summary": "Obtenir la liste des produits",
         "parameters": [
           {
-            "name": "search",
+            "name": "id",
             "in": "query",
-            "description": "Mot-clé pour le nom du produit",
+            "description": "ID du produit",
             "required": false,
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "sort",
-            "in": "query",
-            "description": "Critère de tri des produits",
-            "required": false,
-            "schema": {
-              "type": "string"
+              "type": "integer"
             }
           }
         ],
@@ -46,20 +37,31 @@
         }
       }
     },
+    "/api/products/all": {
+      "get": {
+        "summary": "Obtenir tous les produits",
+        "description": "Récupère une liste de tous les produits disponibles.",
+        "responses": {
+          "200": {
+            "description": "Liste de tous les produits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/cities": {
       "get": {
         "summary": "Rechercher des villes",
-        "parameters": [
-          {
-            "name": "query",
-            "in": "query",
-            "description": "Mot-clé pour la recherche de villes",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "opération réussie",
