@@ -1,58 +1,63 @@
+# Workflow: CI/CD pour l'image de production
+# Ce workflow se déclenche lors d'une Pull Request ciblant la branche 'main'.
+# Il est responsable de la construction et du push de l'image Docker de production
+# vers le GitHub Container Registry (GHCR).
 
-name: CD - Deploy Prod Image (on Main PR) 
+name: CI/CD - Build & Push Prod Image (on PR to Main)
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened] 
+    types: [opened, synchronize, reopened]
     branches:
-      - main 
+      - main # Se déclenche pour les PR ciblant la branche principale (main)
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  APP_ENV_PROD: prod
-  APACHE_CONF_PROD: prod.conf
+  REGISTRY: ghcr.io # Registre de conteneurs GitHub
+  IMAGE_NAME: ${{ github.repository }} # Nom de l'image Docker (ex: mon-org/mon-repo)
+  APP_ENV_PROD: prod # Variable d'environnement pour l'application en production
+  APACHE_CONF_PROD: prod.conf # Fichier de configuration Apache pour la production
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  build-and-push-prod:
+    runs-on: ubuntu-latest # Exécute le job sur une machine virtuelle Ubuntu
 
     permissions:
-      contents: read
-      packages: write 
+      contents: read # Permet de lire le contenu du dépôt
+      packages: write # Permet de pousser des packages (images Docker) vers GHCR
 
     steps:
-      - name: Checkout repository
+      - name: Checkout repository # Étape pour cloner le dépôt Git
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
+      - name: Set up Docker Buildx # Configure Docker Buildx pour des builds performants
         uses: docker/setup-buildx-action@v3
 
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GitHub Container Registry # Connexion au registre GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Construire et pousser l'image Docker de production finale avec des tags multiples
+      # Construire et pousser l'image Docker de production
+      # L'image est taguée avec le numéro de la PR et le SHA du commit pour la traçabilité.
       - name: Build and Push Prod Docker Image
         uses: docker/build-push-action@v5
         with:
-          context: .
-          file: ./Dockerfile
-          push: true
+          context: . # Contexte de build (répertoire racine du dépôt)
+          file: ./Dockerfile # Chemin vers le Dockerfile
+          push: true # Indique de pousser l'image vers le registre
           
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-main-${{ github.event.pull_request.number }} 
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} 
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:pr-main-${{ github.event.pull_request.number }} # Tag spécifique à la PR
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} # Tag basé sur le SHA du commit
           build-args: |
             APP_ENV=${{ env.APP_ENV_PROD }}
             APACHE_CONF=${{ env.APACHE_CONF_PROD }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha # Utilise le cache GitHub Actions pour accélérer les builds
+          cache-to: type=gha,mode=max # Met en cache l'image pour les builds futurs
 
-      - name: "Image Build and Push Complete for Main PR"
+      - name: "Image Build and Push Complete for Main PR" # Message de confirmation
         run: |
           echo "L'image Docker pour la PR vers main a été construite et poussée avec succès."
           echo "--- Tags de l'image ---"
