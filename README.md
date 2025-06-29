@@ -10,7 +10,7 @@ Ce Readme.md est à destination des futurs repreneurs du site-web Vide Grenier e
 
 Ce projet a été conçu dans le cadre d'un apprentissage approfondi de Docker et de la conteneurisation. Il met en œuvre une architecture basée sur Docker pour faciliter le développement, le déploiement et la gestion des différents environnements.
 
-## Environnements Docker
+## Environnements Docker 
 
 Le projet est structuré autour de deux environnements Docker distincts, permettant une gestion indépendante du développement et de la production :
 
