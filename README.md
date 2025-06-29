@@ -14,7 +14,7 @@ Ce projet a été conçu dans le cadre d'un apprentissage approfondi de Docker e
 
 Le projet est structuré autour de deux environnements Docker distincts, permettant une gestion indépendante du développement et de la production :
 
-### 1. Environnement de Développement (DEV)
+### 1. Environnement de Développement (DEV) 
 
 *   **Description :** Cet environnement est conçu pour le développement local. Il utilise un "bind mount" pour que les modifications du code source soient immédiatement reflétées dans le conteneur, sans nécessiter de reconstruction d'image.
 *   **Accès :** `http://videgrenier-dev:8000/`
