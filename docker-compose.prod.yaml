@@ -1,0 +1,40 @@
+services:
+  web-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APACHE_CONF: prod.conf
+        APP_ENV: prod
+    container_name: videgrenier-web-prod
+    ports:
+      - "9089:80"
+    extra_hosts:
+      - "videgrenier-prod:127.0.0.1"
+    depends_on:
+      - db-prod
+    environment:
+      APP_ENV: prod
+      DB_HOST: db-prod
+      DB_DATABASE: videgrenier_prod
+      DB_USERNAME: user_prod
+      DB_PASSWORD: password_prod
+
+  db-prod:
+    image: mysql:8
+    container_name: videgrenier-db-prod
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: videgrenier_prod
+      MYSQL_USER: user_prod
+      MYSQL_PASSWORD: password_prod
+      MYSQL_ROOT_PASSWORD: root_password_prod
+    volumes:
+      - db_data_prod:/var/lib/mysql
+      - ./sql/import.sql:/docker-entrypoint-initdb.d/import.sql
+
+volumes:
+  db_data_maint:
+  db_data_prod:
