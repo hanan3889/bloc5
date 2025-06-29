@@ -144,7 +144,7 @@
                             <ul class="list-inline">
                                 <li><a href="#">Politique relative aux cookies</a></li>
                                 <li><a href="#">Politique de confidentialité</a></li>
-                                <li>Copyright 2020 <a href="https://www.cesi.fr" class="hidden-xs">CESI</a></li>
+                                <li>Copyright<span id="current-year"></span> <a href="https://www.cesi.fr" class="hidden-xs">CESI</a></li>
                             </ul>
                         </div>
                     </div>
@@ -168,6 +168,9 @@
     <script src="/bootstrap/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/xcash/bootstrap-autocomplete@v2.3.7/dist/latest/bootstrap-autocomplete.min.js"></script>
     <script src="/js/custom.js"></script>
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
 
     {% block javascript %}
     {% endblock %}
