@@ -30,12 +30,16 @@ class User extends \Core\Controller
             $remember_me = !empty($f['remember_me']); 
             
             $loginResult = $this->login($f, $remember_me);
-            if ($loginResult) {
+            if ($loginResult === true) {
                 header('Location: /account');
                 exit;
-            } else {
+            } elseif ($loginResult === false) {
                 View::renderTemplate('User/login.html', ['error' => 'Email ou mot de passe incorrect.']);
                 return;
+            } else { // $loginResult est null, utilisateur non trouvé
+                Session::set('error', 'Cet email n\'est pas enregistré. Veuillez vous inscrire.');
+                header('Location: /register');
+                exit;
             }
         }
         View::renderTemplate('User/login.html');
@@ -153,11 +157,11 @@ class User extends \Core\Controller
 
             // Vérifie si un utilisateur a été trouvé.
             if (!$user) {
-                return false; 
+                return null; // Retourne null si l'utilisateur n'est pas trouvé
             }
 
             if (!password_verify($data['password'], $user['password'])) {
-                return false; 
+                return false; // Retourne false si le mot de passe est incorrect
             }
 
             \App\Utility\Auth::login($user, $remember_me); 
