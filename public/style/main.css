@@ -198,10 +198,11 @@ a.active {
     width: 20%;
     float: left; } }
 
-@media (min-width: 1200px) {
-  .col-lg-1-5 {
-    width: 20%;
-    float: left; } }
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1400px;
+  }
+}
 
 input[type="text"],
 input[type="email"],
