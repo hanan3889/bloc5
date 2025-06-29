@@ -23,6 +23,8 @@ fi
 # Start the specified services in detached mode
 echo "Démarrage des services web-dev et db-dev..."
 if docker-compose -f docker-compose.dev.yaml -p vide-grenier-dev up -d web-dev db-dev; then
+    echo "Redémarrage du service Apache dans le conteneur DEV..."
+    docker-compose -f docker-compose.dev.yaml exec web-dev apachectl restart || true
     echo "🎉 Environnement DEV démarré sur http://videgrenier-dev:8000"
 else
     echo "❌ Erreur lors du démarrage de l'environnement DEV."
