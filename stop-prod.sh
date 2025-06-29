@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🛑 Arrêt de l'environnement PROD..."
+echo "🛑 Arrêt du conteneur de PROD..."
 
-docker-compose -f docker-compose.yaml -p vide-grenier-prod down
+docker-compose -f docker-compose.prod.yaml -p vide-grenier-prod down
 
-echo "✅ Environnement PROD arrêté."
+echo "✅ Conteneur de PROD arrêté."
