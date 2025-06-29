@@ -2,6 +2,6 @@
 
 echo "🛑 Arrêt du conteneur de PROD..."
 
-docker-compose -f docker-compose.prod.yaml -p vide-grenier-prod down
+docker-compose -f docker-compose.prod.yaml -p bloc5 down
 
 echo "✅ Conteneur de PROD arrêté."
