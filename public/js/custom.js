@@ -50,4 +50,29 @@ $( document ).ready(function() {
         e.preventDefault();
         return false;
     });
+
+    // Dark Theme Toggle
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const body = document.body;
+    const darkThemeClass = 'dark-theme';
+    const themeStorageKey = 'themePreference';
+
+    // Apply saved theme on load
+    const savedTheme = localStorage.getItem(themeStorageKey);
+    if (savedTheme === darkThemeClass) {
+        body.classList.add(darkThemeClass);
+    }
+
+    // Toggle theme on button click
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            if (body.classList.contains(darkThemeClass)) {
+                body.classList.remove(darkThemeClass);
+                localStorage.setItem(themeStorageKey, ''); // Save empty string for light theme
+            } else {
+                body.classList.add(darkThemeClass);
+                localStorage.setItem(themeStorageKey, darkThemeClass);
+            }
+        });
+    }
 });
