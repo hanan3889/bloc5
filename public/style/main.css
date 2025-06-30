@@ -2275,9 +2275,121 @@ footer {
   .single-article .adblock2 .img {
     width: 100%; } }
 
-/*
-* Content Single Video END
-*/
+/* Dark Theme Styles */
+body.dark-theme {
+  background-color: #1a1a1a;
+  color: #e0e0e0; }
+  body.dark-theme .content-wrapper {
+    background-color: #2c2c2c; }
+  body.dark-theme a {
+    color: #e0e0e0; }
+  body.dark-theme a:hover {
+    color: #ea2c5a; }
+  body.dark-theme .navbar-container {
+    background-color: #2c2c2c;
+    border-bottom-color: #444; }
+  body.dark-theme .mobile-menu {
+    background-color: #2c2c2c; }
+  body.dark-theme .mobile-menu-head {
+    background-color: #2c2c2c;
+    border-bottom-color: #444; }
+  body.dark-theme .mobile-menu-list > ul > li > a > p {
+    color: #e0e0e0; }
+  body.dark-theme footer {
+    border-top-color: #444; }
+  body.dark-theme footer .f-copy {
+    color: #e0e0e0; }
+  body.dark-theme footer .f-copy a {
+    color: #e0e0e0; }
+  body.dark-theme .btn-default {
+    color: #e0e0e0; }
+  body.dark-theme .btn-default:hover {
+    background-color: #444; }
+  body.dark-theme .form-control {
+    background-color: #3a3a3a;
+    border-color: #555;
+    color: #e0e0e0; }
+  body.dark-theme .form-control:focus {
+    border-color: #777; }
+  body.dark-theme .delimiter {
+    border-top-color: #444; }
+  body.dark-theme .block-list > div {
+    background-color: #2c2c2c;
+    border-color: #444; }
+  body.dark-theme .block-list > div:hover:not(.active) {
+    border-color: #777; }
+  body.dark-theme .block-list > div span {
+    color: #e0e0e0; }
+  body.dark-theme .block-list > div.active {
+    border-color: #ea2c5a; }
+  body.dark-theme .block-list > div.active span {
+    color: #e0e0e0; }
+  body.dark-theme .b-article .v-desc {
+    color: #e0e0e0; }
+  body.dark-theme .b-article .v-views {
+    color: #e0e0e0; }
+  body.dark-theme .b-playlist .v-desc {
+    color: #e0e0e0; }
+  body.dark-theme .b-playlist .v-views {
+    color: #e0e0e0; }
+  body.dark-theme .login-wraper .login-window .l-head {
+    background-color: #2c2c2c;
+    border-bottom-color: #444;
+    color: #e0e0e0; }
+  body.dark-theme .login-wraper .login-window .l-form {
+    background-color: #1a1a1a; }
+  body.dark-theme .login-wraper .login-window .l-form label {
+    color: #e0e0e0; }
+  body.dark-theme .login-wraper .ortext {
+    color: #e0e0e0; }
+  body.dark-theme .login-wraper .signuptext {
+    color: #e0e0e0; }
+  body.dark-theme .login-wraper .forgottext a {
+    color: #e0e0e0; }
+  body.dark-theme .single-article .h-clear a {
+    color: #e0e0e0; }
+  body.dark-theme .single-article .content-block .cb-header {
+    border-bottom-color: #444;
+    color: #e0e0e0; }
+  body.dark-theme .single-article .content-block .cb-header a {
+    color: #e0e0e0; }
+  body.dark-theme .single-article .h-article .v-desc {
+    color: #e0e0e0; }
+  body.dark-theme .single-article .h-article .v-views {
+    color: #e0e0e0; }
+  body.dark-theme .single-article .caption {
+    border-bottom-color: #444; }
+  body.dark-theme .single-article .caption .right {
+    color: #e0e0e0; }
+  body.dark-theme .single-article .caption .right a {
+    color: #e0e0e0; }
+  body.dark-theme .single-article .loadmore a {
+    color: #e0e0e0; }
+  body.dark-theme .single-article .author {
+    background-color: #2c2c2c;
+    box-shadow: 0px 2px 1px 1px #111;
+    color: #e0e0e0; }
+  body.dark-theme .single-article .author .sv-name {
+    color: #e0e0e0; }
+  body.dark-theme .single-article .author .sv-name a {
+    color: #e0e0e0; }
+  body.dark-theme .single-article .author .sv-name .c-sub .c-s {
+    background-color: #3a3a3a;
+    border-color: #555;
+    color: #e0e0e0; }
+  body.dark-theme .single-article .author .sv-views .sv-views-progress {
+    background-color: #444; }
+  body.dark-theme .single-article .author .sv-views .sv-views-stats .percent {
+    color: #ea2c5a; }
+  body.dark-theme .single-article .author .sv-views .sv-views-stats .green {
+    color: #28b47e; }
+  body.dark-theme .theme-toggle-btn {
+    background-color: #444;
+    color: #e0e0e0;
+    border-color: #555; }
+  body.dark-theme .theme-toggle-btn:hover {
+    background-color: #555;
+    border-color: #666; }
 /*
 * Content Upload
 */
