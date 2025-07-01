@@ -37,12 +37,19 @@ $router->add('register', ['controller' => 'User', 'action' => 'register']);
 $router->add('logout', ['controller' => 'User', 'action' => 'logout', 'private' => true]);
 $router->add('account', ['controller' => 'User', 'action' => 'account', 'private' => true]);
 $router->add('product', ['controller' => 'Product', 'action' => 'index', 'private' => true]);
-$router->add('product/{id:\d+}', ['controller' => 'Product', 'action' => 'show']);
-$router->add('{controller}/{action}');
+$router->add('product/success', ['controller' => 'Product', 'action' => 'success']);
 $router->add('product/contact/{id:\d+}', ['controller' => 'Product','action' => 'contact','private' => true]);
-$router->add('product/{id}', ['controller' => 'Product', 'action' => 'show']); // Route pour afficher l'article
-$router->add('product/contact/{id}', ['controller' => 'Product', 'action' => 'contact']); // Route pour le contact
-$router->add('api/documentation', ['controller' => 'Api', 'action' => 'documentation']);
+$router->add('product/success', ['controller' => 'Product', 'action' => 'success']);
+$router->add('product/{id:\d+}', ['controller' => 'Product', 'action' => 'show']);
+
+// API routes
+$router->add('api/products/all', ['controller' => 'Api', 'action' => 'products']);
+$router->add('api/cities', ['controller' => 'Api', 'action' => 'cities']);
+$router->add('api/users/register', ['controller' => 'User', 'action' => 'register']);
+$router->add('api/users/login', ['controller' => 'User', 'action' => 'login']);
+$router->add('api/users/{id:\d+}', ['controller' => 'User', 'action' => 'findById']);
+
+$router->add('{controller}/{action}');
 
 
 

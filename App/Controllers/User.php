@@ -25,24 +25,50 @@ class User extends \Core\Controller
      */
     public function loginAction()
     {
-        if(isset($_POST['submit'])){
-            $f = $_POST;
-            $remember_me = !empty($f['remember_me']); 
-            
+        $isApiRequest = strpos($_SERVER['REQUEST_URI'], '/api/') !== false;
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if ($isApiRequest) {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $f = $input;
+            } else {
+                $f = $_POST;
+            }
+
+            $remember_me = !empty($f['remember_me']);
+
             $loginResult = $this->login($f, $remember_me);
-            if ($loginResult === true) {
-                header('Location: /account');
+
+            if ($isApiRequest) {
+                header('Content-Type: application/json');
+                if ($loginResult === true) {
+                    echo json_encode(['message' => 'Connexion réussie']);
+                } elseif ($loginResult === false) {
+                    http_response_code(401);
+                    echo json_encode(['error' => 'Email ou mot de passe incorrect.']);
+                } else { // $loginResult est null, utilisateur non trouvé
+                    http_response_code(404);
+                    echo json_encode(['error' => 'Cet email n\'est pas enregistré.']);
+                }
                 exit;
-            } elseif ($loginResult === false) {
-                View::renderTemplate('User/login.html', ['error' => 'Email ou mot de passe incorrect.']);
-                return;
-            } else { // $loginResult est null, utilisateur non trouvé
-                Session::set('error', 'Cet email n\'est pas enregistré. Veuillez vous inscrire.');
-                header('Location: /register');
-                exit;
+            } else {
+                if ($loginResult === true) {
+                    header('Location: /account');
+                    exit;
+                } elseif ($loginResult === false) {
+                    View::renderTemplate('User/login.html', ['error' => 'Email ou mot de passe incorrect.']);
+                    return;
+                } else { // $loginResult est null, utilisateur non trouvé
+                    Session::set('error', 'Cet email n\'est pas enregistré. Veuillez vous inscrire.');
+                    header('Location: /register');
+                    exit;
+                }
             }
         }
-        View::renderTemplate('User/login.html');
+
+        if (!$isApiRequest) {
+            View::renderTemplate('User/login.html');
+        }
     }
 
     /**
@@ -50,19 +76,23 @@ class User extends \Core\Controller
      */
     public function registerAction()
     {
-        
-        if (isset($_POST['submit'])) {
-            $f = $_POST;
+        $isApiRequest = strpos($_SERVER['REQUEST_URI'], '/api/') !== false;
 
-            // Vérification des mots de passe
-            if ($f['password'] !== $f['password-check']) {
-                // TODO: Gérer l'erreur utilisateur via une session flash ou un message dans la vue
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if ($isApiRequest) {
+                $input = json_decode(file_get_contents('php://input'), true);
+                $f = $input;
+            } else {
+                $f = $_POST;
+            }
+
+            // Vérification des mots de passe (uniquement pour les requêtes non-API)
+            if (!$isApiRequest && ($f['password'] !== $f['password-check'])) {
                 echo "Mots de passe différents<br>";
                 return;
             }
 
-        
-            $f['salt'] = ''; 
+            $f['salt'] = '';
             $f['password'] = password_hash($f['password'], PASSWORD_DEFAULT);
 
             try {
@@ -70,27 +100,47 @@ class User extends \Core\Controller
                 UserRegister::createUser($f);
 
             } catch (Exception $e) {
-                echo "Erreur lors de l'enregistrement de l'utilisateur : " . $e->getMessage() . "<br>";
-                return;
+                if ($isApiRequest) {
+                    http_response_code(500);
+                    echo json_encode(['error' => "Erreur lors de l'enregistrement de l'utilisateur : " . $e->getMessage()]);
+                    exit;
+                } else {
+                    echo "Erreur lors de l'enregistrement de l'utilisateur : " . $e->getMessage() . "<br>";
+                    return;
+                }
             }
 
             // Recherche l'utilisateur fraîchement créé pour récupérer toutes ses informations
             $user = UserRegister::findByEmail($f['email']);
             if (!$user) {
-                echo "Utilisateur introuvable après l'enregistrement<br>";
-                exit; 
+                if ($isApiRequest) {
+                    http_response_code(500);
+                    echo json_encode(['error' => "Utilisateur introuvable après l'enregistrement."]);
+                    exit;
+                } else {
+                    echo "Utilisateur introuvable après l'enregistrement<br>";
+                    exit;
+                }
             }
 
             // Connecte l'utilisateur en session
             Auth::login($user);
 
-            // Redirige l'utilisateur vers la page de compte après l'enregistrement et la connexion
-            header('Location: /account');
-            exit;
-
+            if ($isApiRequest) {
+                header('Content-Type: application/json');
+                http_response_code(201);
+                echo json_encode(['message' => 'Utilisateur créé avec succès.', 'user_id' => $user['id']]);
+                exit;
+            } else {
+                // Redirige l'utilisateur vers la page de compte après l'enregistrement et la connexion
+                header('Location: /account');
+                exit;
+            }
         }
 
-        View::renderTemplate('User/register.html');
+        if (!$isApiRequest) {
+            View::renderTemplate('User/register.html');
+        }
     }
 
 
@@ -212,6 +262,32 @@ class User extends \Core\Controller
         header ("Location: /");
 
         return true;
+    }
+
+    public function findByIdAction()
+    {
+        header('Content-Type: application/json');
+        $id = $this->route_params['id'] ?? null;
+
+        if (empty($id)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'ID utilisateur manquant.']);
+            return;
+        }
+
+        try {
+            $user = \App\Models\User::findById((int)$id);
+
+            if ($user) {
+                echo json_encode($user);
+            } else {
+                http_response_code(404);
+                echo json_encode(['error' => 'Utilisateur non trouvé.']);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Erreur interne du serveur.', 'details' => $e->getMessage()]);
+        }
     }
 
 }
