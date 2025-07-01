@@ -32,7 +32,7 @@ node_modules/
 # Fichiers et répertoires liés au développement ou aux tests qui ne sont pas
 # nécessaires au bon fonctionnement de l'application en production.
 # -----------------------------------------------------------------------------
-tests/         
+         
 vendor/        
 
 # -----------------------------------------------------------------------------

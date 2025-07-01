@@ -3,6 +3,9 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
          bootstrap="tests/bootstrap.php"
          colors="true">
+    <php>
+        <includePath>tests/Mocks/</includePath>
+    </php>
     <testsuites>
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests</directory>
