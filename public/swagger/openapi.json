@@ -6,15 +6,107 @@
     "description": "L'API pour l'application VideGrenier, permettant de gérer les produits et les villes."
   },
   "paths": {
-    "/api/products": {
+    "/": {
       "get": {
-        "summary": "Obtenir la liste des produits",
+        "summary": "Page d'accueil",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/login": {
+      "get": {
+        "summary": "Afficher la page de connexion",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      },
+      "post": {
+        "summary": "Soumettre le formulaire de connexion",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          },
+          "302": {
+            "description": "Redirection vers la page du compte"
+          }
+        }
+      }
+    },
+    "/register": {
+      "get": {
+        "summary": "Afficher la page d'inscription",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      },
+      "post": {
+        "summary": "Soumettre le formulaire d'inscription",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          },
+          "302": {
+            "description": "Redirection vers la page du compte"
+          }
+        }
+      }
+    },
+    "/logout": {
+      "get": {
+        "summary": "Déconnexion de l'utilisateur",
+        "responses": {
+          "302": {
+            "description": "Redirection vers la page d'accueil"
+          }
+        }
+      }
+    },
+    "/account": {
+      "get": {
+        "summary": "Afficher la page du compte utilisateur",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/product": {
+      "get": {
+        "summary": "Afficher la page d'ajout de produit",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      },
+      "post": {
+        "summary": "Soumettre le formulaire d'ajout de produit",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          },
+          "302": {
+            "description": "Redirection vers la page du produit"
+          }
+        }
+      }
+    },
+    "/product/{id}": {
+      "get": {
+        "summary": "Afficher un produit spécifique",
         "parameters": [
           {
             "name": "id",
-            "in": "query",
-            "description": "ID du produit",
-            "required": false,
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer"
             }
@@ -22,28 +114,88 @@
         ],
         "responses": {
           "200": {
-            "description": "opération réussie",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object"
-                  }
-                }
-              }
-            }
+            "description": "Opération réussie"
           }
         }
       }
     },
-    "/api/products/all": {
+    "/product/contact/{id}": {
       "get": {
-        "summary": "Obtenir tous les produits",
-        "description": "Récupère une liste de tous les produits disponibles.",
+        "summary": "Afficher le formulaire de contact pour un produit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Liste de tous les produits",
+            "description": "Opération réussie"
+          }
+        }
+      },
+      "post": {
+        "summary": "Soumettre le formulaire de contact pour un produit",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          },
+          "302": {
+            "description": "Redirection vers la page de succès"
+          }
+        }
+      }
+    },
+    "/product/success": {
+      "get": {
+        "summary": "Afficher la page de succès de l'envoi de formulaire",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "summary": "Obtenir la liste des produits",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Terme de recherche pour filtrer les produits par nom",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Critère de tri",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie",
             "content": {
               "application/json": {
                 "schema": {
@@ -61,10 +213,20 @@
     "/api/cities": {
       "get": {
         "summary": "Rechercher des villes",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Terme de recherche pour les villes",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "opération réussie",
+            "description": "Opération réussie",
             "content": {
               "application/json": {
                 "schema": {
@@ -75,6 +237,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/documentation": {
+      "get": {
+        "summary": "Afficher la documentation de l'API",
+        "responses": {
+          "200": {
+            "description": "Opération réussie"
           }
         }
       }
