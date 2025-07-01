@@ -6,178 +6,15 @@
     "description": "L'API pour l'application VideGrenier, permettant de gérer les produits et les villes."
   },
   "paths": {
-    "/": {
+    "/api/products/all": {
       "get": {
-        "summary": "Page d'accueil",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        }
-      }
-    },
-    "/login": {
-      "get": {
-        "summary": "Afficher la page de connexion",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        }
-      },
-      "post": {
-        "summary": "Soumettre le formulaire de connexion",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          },
-          "302": {
-            "description": "Redirection vers la page du compte"
-          }
-        }
-      }
-    },
-    "/register": {
-      "get": {
-        "summary": "Afficher la page d'inscription",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        }
-      },
-      "post": {
-        "summary": "Soumettre le formulaire d'inscription",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          },
-          "302": {
-            "description": "Redirection vers la page du compte"
-          }
-        }
-      }
-    },
-    "/logout": {
-      "get": {
-        "summary": "Déconnexion de l'utilisateur",
-        "responses": {
-          "302": {
-            "description": "Redirection vers la page d'accueil"
-          }
-        }
-      }
-    },
-    "/account": {
-      "get": {
-        "summary": "Afficher la page du compte utilisateur",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        }
-      }
-    },
-    "/product": {
-      "get": {
-        "summary": "Afficher la page d'ajout de produit",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        }
-      },
-      "post": {
-        "summary": "Soumettre le formulaire d'ajout de produit",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          },
-          "302": {
-            "description": "Redirection vers la page du produit"
-          }
-        }
-      }
-    },
-    "/product/{id}": {
-      "get": {
-        "summary": "Afficher un produit spécifique",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        }
-      }
-    },
-    "/product/contact/{id}": {
-      "get": {
-        "summary": "Afficher le formulaire de contact pour un produit",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        }
-      },
-      "post": {
-        "summary": "Soumettre le formulaire de contact pour un produit",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          },
-          "302": {
-            "description": "Redirection vers la page de succès"
-          }
-        }
-      }
-    },
-    "/product/success": {
-      "get": {
-        "summary": "Afficher la page de succès de l'envoi de formulaire",
-        "responses": {
-          "200": {
-            "description": "Opération réussie"
-          }
-        }
-      }
-    },
-    "/api/products": {
-      "get": {
-        "summary": "Obtenir la liste des produits",
+        "summary": "Obtenir la liste de tous les produits",
+        "description": "Retourne une liste de produits. Le tri et la recherche sont des paramètres exclusifs : si la recherche est utilisée, le tri est ignoré.",
         "parameters": [
           {
             "name": "search",
             "in": "query",
-            "description": "Terme de recherche pour filtrer les produits par nom",
+            "description": "Terme de recherche pour filtrer les produits par nom ou description.",
             "required": false,
             "schema": {
               "type": "string"
@@ -186,10 +23,11 @@
           {
             "name": "sort",
             "in": "query",
-            "description": "Critère de tri",
+            "description": "Critère de tri. 'views' pour trier par popularité (les plus vus), 'data' pour trier par les plus récents.",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": ["views", "data"]
             }
           }
         ],
@@ -201,7 +39,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/components/schemas/Article"
                   }
                 }
               }
@@ -212,12 +50,12 @@
     },
     "/api/cities": {
       "get": {
-        "summary": "Rechercher des villes",
+        "summary": "Rechercher des villes par ID ou nom",
         "parameters": [
           {
-            "name": "query",
+            "name": "mot_cle",
             "in": "query",
-            "description": "Terme de recherche pour les villes",
+            "description": "Mot-clé pour la recherche de villes (peut être un ID numérique ou un nom de ville).",
             "required": true,
             "schema": {
               "type": "string"
@@ -232,21 +70,213 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/components/schemas/City"
                   }
                 }
               }
             }
+          },
+          "400": {
+            "description": "Paramètre mot_cle manquant."
+          },
+          "404": {
+            "description": "Ville(s) non trouvée(s)."
           }
         }
       }
     },
-    "/api/documentation": {
-      "get": {
-        "summary": "Afficher la documentation de l'API",
+    "/api/users/register": {
+      "post": {
+        "summary": "Créer un nouvel utilisateur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserRegister"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Utilisateur créé"
+          },
+          "400": {
+            "description": "Données invalides"
+          }
+        }
+      }
+    },
+    "/api/users/login": {
+      "post": {
+        "summary": "Connecter un utilisateur",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLogin"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "Opération réussie"
+            "description": "Connexion réussie"
+          },
+          "401": {
+            "description": "Identifiants incorrects"
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "summary": "Récupérer un utilisateur par son ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Opération réussie",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Utilisateur non trouvé"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Article": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Mon produit"
+          },
+          "description": {
+            "type": "string",
+            "example": "Une description de mon produit."
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 12
+          },
+          "published_date": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-07-01"
+          },
+          "views": {
+            "type": "integer",
+            "example": 150
+          },
+          "picture": {
+            "type": "string",
+            "example": "image.jpg"
+          },
+          "seller": {
+            "$ref": "#/components/schemas/Seller"
+          }
+        }
+      },
+      "City": {
+        "type": "object",
+        "properties": {
+          "ville_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "ville_nom_reel": {
+            "type": "string",
+            "example": "Paris"
+          },
+          "ville_code_postal": {
+            "type": "string",
+            "example": "75000"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "Seller": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "example": 12
+          },
+          "user_username": {
+            "type": "string",
+            "example": "NomDuVendeur"
+          },
+          "user_email": {
+            "type": "string",
+            "format": "email",
+            "example": "vendeur@example.com"
+          }
+        }
+      },
+      "UserRegister": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
+          }
+        }
+      },
+      "UserLogin": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password"
           }
         }
       }
