@@ -56,21 +56,4 @@ class User extends Model {
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
-    /**
-     * ?
-     * @access public
-     * @return string|boolean
-     * @throws Exception
-     */
-    public static function login() {
-        $db = static::getDB();
-
-        $stmt = $db->prepare('SELECT * FROM articles WHERE articles.id = ? LIMIT 1');
-
-        $stmt->execute([$id]);
-
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-    }
-
-
 }
