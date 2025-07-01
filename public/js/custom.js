@@ -54,7 +54,7 @@ $( document ).ready(function() {
     // Dark Theme Toggle
     const themeToggleBtn = document.getElementById('theme-toggle');
     const body = document.body;
-    const darkThemeClass = 'dark-theme';
+    const darkThemeClass = 'dark';
     const themeStorageKey = 'themePreference';
 
     // Apply saved theme on load
