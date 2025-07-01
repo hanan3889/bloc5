@@ -82,8 +82,135 @@ body.light {
 
 body.dark {
   background-color: $c-bg-dark;
+  color: $c-default-dark; // Couleur du texte par défaut en mode sombre
   .content-wrapper {
     background-color: $c-bg-dark-content;
+  }
+  a {
+    color: $c-default-dark; // Couleur des liens en mode sombre
+    &:hover {
+      color: $c-active;
+    }
+  }
+  .delimiter {
+    border-top: solid 1px $c-divider-dark; // Couleur des délimiteurs en mode sombre
+  }
+  ul.dropdown-menu {
+    border-color: $c-divider-dark; // Couleur des bordures des menus déroulants
+    li {
+      border-bottom: solid 1px $c-divider-dark; // Couleur des bordures des éléments de menu
+      &:nth-child(even) {
+        background-color: $c-bg-dark-content; // Couleur de fond des éléments de menu pairs
+      }
+    }
+  }
+  .form-control {
+    border: solid 1px $c-border-ipt-dark; // Couleur des bordures des champs de formulaire
+    background-color: $c-bg-dark-content; // Couleur de fond des champs de formulaire
+    color: $c-default-dark; // Couleur du texte des champs de formulaire
+  }
+  .btn-default {
+    color: $c-icon-dark; // Couleur des boutons par défaut
+  }
+  .navbar-container {
+    border-bottom: solid 1px $c-divider-dark; // Couleur de la bordure de la barre de navigation
+  }
+  .mobile-menu {
+    background-color: $c-bg-dark; // Couleur de fond du menu mobile
+    .mobile-menu-head {
+      background-color: $c-bg-dark-content; // Couleur de fond de l'en-tête du menu mobile
+      border-bottom: solid 1px $c-divider-dark; // Couleur de la bordure de l'en-tête du menu mobile
+    }
+    .mobile-menu-close {
+      border-left: solid 2px $c-icon-dark; // Couleur de l'icône de fermeture du menu mobile
+      border-bottom: solid 2px $c-icon-dark;
+    }
+    .mobile-menu-user p {
+      color: $c-default-dark; // Couleur du texte de l'utilisateur du menu mobile
+    }
+    .mobile-menu-list {
+      border-bottom: solid 1px $c-divider-dark; // Couleur de la bordure de la liste du menu mobile
+      ul li a p {
+        color: $c-default-dark; // Couleur du texte des éléments de la liste du menu mobile
+      }
+    }
+    .mobile-menu-logout {
+      background-color: $c-divider-dark; // Couleur de fond du bouton de déconnexion du menu mobile
+      color: $c-default-dark; // Couleur du texte du bouton de déconnexion du menu mobile
+    }
+  }
+  footer {
+    border-top: solid 1px $c-divider-dark; // Couleur de la bordure du pied de page
+    .f-copy {
+      color: $c-f-link-dark; // Couleur du texte de copyright
+      a {
+        color: $c-f-link-dark; // Couleur des liens de copyright
+      }
+    }
+    .f-icon a {
+      color: $c-icon-dark; // Couleur des icônes sociales
+    }
+    .f-lang .btn-default {
+      color: $c-default-dark; // Couleur du texte du bouton de langue
+      background-color: $c-divider-dark !important; // Couleur de fond du bouton de langue
+    }
+  }
+  .login-wraper .login-window .l-head {
+    background-color: $c-bg-dark-content; // Couleur de fond de l'en-tête de la fenêtre de connexion
+    color: $c-default-dark; // Couleur du texte de l'en-tête de la fenêtre de connexion
+    border-bottom: solid 1px $c-divider-dark; // Couleur de la bordure de l'en-tête de la fenêtre de connexion
+  }
+  .login-wraper .login-window .l-form {
+    background-color: $c-bg-dark; // Couleur de fond du formulaire de connexion
+    label {
+      color: $c-default-dark; // Couleur du texte des labels du formulaire de connexion
+    }
+  }
+  .login-wraper .ortext {
+    color: $c-default-dark; // Couleur du texte "ou"
+  }
+  .login-wraper .signuptext {
+    color: $c-default-dark; // Couleur du texte "s'inscrire"
+  }
+  .login-wraper .forgottext a {
+    color: $c-default-dark; // Couleur du texte "mot de passe oublié"
+  }
+  .single-article .content-block .cb-header {
+    border-bottom: solid 1px $c-divider-dark; // Couleur de la bordure de l'en-tête de l'article
+    color: $c-default-dark; // Couleur du texte de l'en-tête de l'article
+    a {
+      color: $c-default-dark; // Couleur des liens de l'en-tête de l'article
+    }
+  }
+  .single-article .caption {
+    border-bottom: solid 1px $c-divider-dark; // Couleur de la bordure de la légende de l'article
+    .right {
+      color: $c-default-dark; // Couleur du texte de la légende de l'article
+      a {
+        color: $c-default-dark; // Couleur des liens de la légende de l'article
+      }
+    }
+  }
+  .single-article .loadmore {
+    border-top: solid 1px $c-divider-dark; // Couleur de la bordure du bouton "charger plus"
+    a {
+      color: $c-default-dark; // Couleur du texte du bouton "charger plus"
+    }
+  }
+  .single-article .author {
+    background-color: $c-bg-dark-content; // Couleur de fond de la section auteur
+    -webkit-box-shadow: 0px 2px 1px 1px $c-dark-border; // Ombre de la section auteur
+    -moz-box-shadow: 0px 2px 1px 1px $c-dark-border;
+    box-shadow: 0px 2px 1px 1px $c-dark-border;
+    .sv-name {
+      color: $c-default-dark; // Couleur du texte du nom de l'auteur
+      a {
+        color: $c-default-dark; // Couleur du lien du nom de l'auteur
+      }
+    }
+    .sv-views .sv-views-progress {
+      background-color: $c-divider-dark; // Couleur de la barre de progression des vues
+    }
   }
 }
 
