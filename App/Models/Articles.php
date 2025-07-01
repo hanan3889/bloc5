@@ -22,7 +22,19 @@ class Articles extends Model {
     public static function getAll($filter) {
         $db = static::getDB();
 
-        $query = 'SELECT * FROM articles ';
+        $query = 'SELECT
+                articles.id,
+                articles.name,
+                articles.description,
+                articles.published_date,
+                articles.user_id,
+                articles.views,
+                articles.picture,
+                users.id AS seller_id,
+                users.username AS seller_username,
+                users.email AS seller_email
+            FROM articles
+            INNER JOIN users ON articles.user_id = users.id ';
 
         switch ($filter){
             case 'views':
@@ -193,8 +205,20 @@ class Articles extends Model {
     public static function searchByName($searchTerm) {
         $db = static::getDB();
         $stmt = $db->prepare('
-            SELECT * FROM articles
-            WHERE name LIKE :searchTerm OR description LIKE :searchTerm
+            SELECT
+                articles.id,
+                articles.name,
+                articles.description,
+                articles.published_date,
+                articles.user_id,
+                articles.views,
+                articles.picture,
+                users.id AS seller_id,
+                users.username AS seller_username,
+                users.email AS seller_email
+            FROM articles
+            INNER JOIN users ON articles.user_id = users.id
+            WHERE articles.name LIKE :searchTerm OR articles.description LIKE :searchTerm
         ');
         $stmt->bindValue(':searchTerm', '%' . $searchTerm . '%');
         $stmt->execute();

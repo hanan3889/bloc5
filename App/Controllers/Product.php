@@ -164,13 +164,16 @@ class Product extends \Core\Controller
             }
 
             if (empty($errors)) {
+                error_log("Contact form: No errors, attempting redirect to /product/success");
                 $successMessage = "Votre message a été envoyé avec succès !";
                 $senderName = '';
                 $senderEmail = '';
                 $messageContent = '';
                 header("Location: /product/success");
-                    exit;
+                exit;
 
+            } else {
+                error_log("Contact form: Errors found: " . implode(", ", $errors));
             }
         }
 

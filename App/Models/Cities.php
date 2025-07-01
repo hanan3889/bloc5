@@ -9,10 +9,10 @@ use Core\Model;
  */
 class Cities extends Model {
 
-    public static function search($str) {
+    public static function searchByName($str) {
         $db = static::getDB();
 
-        $stmt = $db->prepare('SELECT ville_id FROM villes_france WHERE ville_nom_reel LIKE :query');
+        $stmt = $db->prepare('SELECT * FROM villes_france WHERE ville_nom_reel LIKE :query');
 
         $query = $str . '%';
 
@@ -20,6 +20,18 @@ class Cities extends Model {
 
         $stmt->execute();
 
-        return $stmt->fetchAll(\PDO::FETCH_COLUMN, 0);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public static function findById($id) {
+        $db = static::getDB();
+
+        $stmt = $db->prepare('SELECT * FROM villes_france WHERE ville_id = :id LIMIT 1');
+
+        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 }
