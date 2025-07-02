@@ -3,3 +3,39 @@ vendor
 composer.lock
 .env.dev
 .env.prod
+
+# Logs
+logs/
+*.log
+
+# Dependency directories
+node_modules/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+
+# PHP specific
+.phpunit.result.cache
+
+# Uploaded files
+public/storage/
+
+# Package manager files
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
