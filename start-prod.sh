@@ -9,4 +9,4 @@ git pull origin main
 
 docker-compose -p videgrenier-prod --env-file .env.prod -f docker-compose.prod.yaml up --build -d
 
-echo "🎉 Environnement PROD démarré sur http://videgrenier-prod:9089"
+echo "🎉 Environnement PROD démarré sur http://localhost:9089"
