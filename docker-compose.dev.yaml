@@ -1,41 +1,33 @@
+
 services:
   web-dev:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        APACHE_CONF: dev.conf
-        APP_ENV: dev
+        APACHE_CONF: ${APACHE_CONF}
+        APP_ENV: ${APP_ENV}
     container_name: videgrenier-web-dev
     ports:
-      - "8000:80"
-    extra_hosts:
-      - "videgrenier-dev:127.0.0.1"
+      - "${APP_PORT}:${CONTAINER_APP_PORT}"
     volumes:
       - .:/var/www/html
     depends_on:
       - db-dev
-    environment:
-      APP_ENV: dev
-      DB_HOST: db-dev
-      DB_DATABASE: videgrenier_dev
-      DB_USERNAME: user_dev
-      DB_PASSWORD: password_dev
+    env_file: .env.dev
 
   db-dev:
     image: mysql:8
     container_name: videgrenier-db-dev
     restart: always
     ports:
-      - "3306:3306"
+      - "${DB_PORT}:${CONTAINER_DB_PORT}"
     environment:
-      MYSQL_DATABASE: videgrenier_dev
-      MYSQL_USER: user_dev
-      MYSQL_PASSWORD: password_dev
-      MYSQL_ROOT_PASSWORD: root_password_dev
+      MYSQL_AUTHENTICATION_PLUGIN: ${MYSQL_AUTHENTICATION_PLUGIN}
     volumes:
       - db_data_dev:/var/lib/mysql
       - ./sql/import.sql:/docker-entrypoint-initdb.d/import.sql
+    env_file: .env.dev
 
 volumes:
   db_data_dev:
