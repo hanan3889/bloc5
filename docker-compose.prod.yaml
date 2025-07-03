@@ -8,7 +8,7 @@ services:
         APP_ENV: ${APP_ENV}
     container_name: videgrenier-web-${APP_ENV}
     ports:
-      - "${APP_PORT}:80"
+      - "${APP_PORT}:${CONTAINER_APP_PORT}"
     
     depends_on:
       - db-prod
@@ -20,7 +20,7 @@ services:
     container_name: videgrenier-db-${APP_ENV}
     restart: always
     ports:
-      - "${DB_PORT}:3306"
+      - "${DB_PORT}:${CONTAINER_DB_PORT}"
     env_file:
       - ./.env.prod
     volumes:
