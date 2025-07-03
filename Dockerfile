@@ -43,13 +43,8 @@ else \
     composer install --no-interaction --optimize-autoloader; \
 fi
 
-# Installer PHPUnit uniquement pour l'environnement de développement
-RUN if [ "$APP_ENV" = "dev" ]; then \
-    echo "Installing global phpunit..."; \
-    curl -Ls https://phar.phpunit.de/phpunit-9.5.phar -o /usr/local/bin/phpunit && \
-    chmod +x /usr/local/bin/phpunit && \
-    phpunit --version; \
-fi
+
+
 
 RUN chown -R www-data:www-data /var/www/html
 
